@@ -39,4 +39,4 @@ git checkout -b gh-pages
 git remote add doc https://plumedbot:$GIT_TOKEN@github.com/GiovanniBussi/test-plumed-doc.git
 git add --all .
 git commit -m "Update to plumed/plumed2@$hash"
-git push -f doc gh-pages
+git push -q -f doc gh-pages
