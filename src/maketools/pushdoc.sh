@@ -33,8 +33,14 @@ This is an auto redirect page.
 EOF
 
 git init
+git config user.email "giovanni.bussi+plumedbot@gmail.com"
+git config user.name "plumedbot"
 git checkout -b gh-pages
-git remote add doc git@github.com:GiovanniBussi/test-plumed-doc.git
+# this is not to show the GIT_TOKEN on Travis log
+set +x
+git remote add doc https://plumedbot:$GIT_TOKEN@github.com/GiovanniBussi/test-plumed-doc.git
+set -x
 git add --all .
 git commit -m "Update to plumed/plumed2@$hash"
-git push -f doc gh-pages
+# -q is not to show the GIT_TOKEN on Travis log
+git push -q -f doc gh-pages
