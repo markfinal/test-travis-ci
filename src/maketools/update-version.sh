@@ -19,7 +19,7 @@ echo "#define PLUMED_VERSION_LONG \"$(
 
 echo "#define PLUMED_VERSION_GIT \"$(
   if test -d ../../.git && hash git 2> /dev/null ; then
-    git describe --tags
+    git describe --tags || git describe
   else
     echo "Unknown"
   fi

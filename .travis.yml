@@ -37,11 +37,6 @@ install:
   - test "$VALGRIND" == yes && sudo apt-get install -y valgrind           || true
   - test "$LAPACK" == yes  && sudo apt-get install libatlas-base-dev      || true
 script:
-# this is required to have all named tags in the git log
-# in this way "git describe --tags" used in manual generation gives the proper result
-  - git --version
-  - git pull --depth=1000000
-  - git describe --tags
 # we set all the optional modules on
   - touch src/crystallization.on src/manyrestraints.on
 # we have to pass the full path since on travis machines sudo does not have compilers in the path
