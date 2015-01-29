@@ -15,6 +15,8 @@ env:
   - PLUMED_CC=clang PLUMED_CXX=clang++ PLUMED_CXXFLAGS=-O3 LAPACK=yes
   - PLUMED_CC=gcc   PLUMED_CXX=g++     PLUMED_CXXFLAGS=-O3 LAPACK=yes
   - PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3 LAPACK=yes
+# GNU 4.9
+  - PLUMED_CC=gcc   PLUMED_CXX=g++-4.9
 # Possible additional variables:
 #   VALGRIND=yes to make valgrind tests, only when log contains string [valgrind]
 install:
@@ -30,6 +32,9 @@ install:
 # installation of these packages takes a lot of time
 # we do it only when needed
   - test "$PLUMED_CXX" == "mpic++" && sudo apt-get install -y libopenmpi1.5-dev openmpi1.5-bin || true
+  - if [ "$PLUMED_CXX" = "g++-4.9" ] ; then sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test ; fi
+  - if [ "$PLUMED_CXX" = "g++-4.9" ] ; then sudo apt-get -qq update ; fi
+  - if [ "$PLUMED_CXX" = "g++-4.9" ] ; then sudo apt-get -qq install g++-4.9 ; fi
   - test "$MAKEDOC" == yes && sudo apt-get install -y graphviz            || true
 # doxygen from its repository (apt-get gets an old version)
 #  - test "$MAKEDOC" == yes && ./.travis.install.doxygen                   || true
