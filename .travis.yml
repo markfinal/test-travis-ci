@@ -48,6 +48,7 @@ script:
 # we have to pass the full path since on travis machines sudo does not have compilers in the path
 # moreover, we hardcode path to dynamic library, required for xdrfile to link properly
   - ./configure CXX=$(which $PLUMED_CXX) CC=$(which $PLUMED_CC) CXXFLAGS="$PLUMED_CXXFLAGS" LDFLAGS="-Wl,-rpath,$LD_LIBRARY_PATH" CPPFLAGS="$INCLUDE -I/usr/local/include -I/usr/local/include/almost" $ENALMOST
+  - echo config.log
   - make -j 2
 # we install plumed so that it is in the path
   - sudo make install
