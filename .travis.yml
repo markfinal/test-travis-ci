@@ -19,7 +19,7 @@ install:
 # build the manual, only if log contains string [makedoc]
   - which clang++
   - clang++ --help
-  - env $(which clang++ --help) 
+  - env $(which clang++) --help
   - ./.travis.check.log makedoc  || MAKEDOC=no
   - ./.travis.check.log valgrind || VALGRIND=no
   - ./.travis.check.log almost   || ALMOST=no
