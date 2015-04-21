@@ -16,7 +16,7 @@ env:
   - PLUMED_CC=gcc   PLUMED_CXX=g++     PLUMED_CXXFLAGS=-O3 LAPACK=yes
   - PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3 LAPACK=yes
 # GNU 4.9
-  - PLUMED_CC=gcc   PLUMED_CXX=g++-4.9
+  - PLUMED_CC=gcc   PLUMED_CXX=g++-4.9 PLUMED_CXXFLAGS="-fsanitize=undefined -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fsanitize=address" PLUMED_LDFLAGS="$PLUMED_CXXFLAGS"
 # Possible additional variables:
 #   VALGRIND=yes to make valgrind tests, only when log contains string [valgrind]
 install:
