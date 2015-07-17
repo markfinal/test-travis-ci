@@ -1,0 +1,29 @@
+#! /bin/bash
+
+set -e
+set -x
+
+version=3.1.4
+
+if test -e $HOME/opt-cached/bin/mpirun &&
+   test -e $HOME/opt-cached/bin/mpic++ &&
+   test -e $HOME/opt-cached/installed-mpich-$version
+then
+  echo "mpich $version seems to be cached"
+  echo "skipping install"
+  exit 0
+fi
+
+echo "installing mpich library"
+wget http://www.mpich.org/static/downloads/$version/mpich-$version.tar.gz
+tar xzf mpich-$version.tar.gz
+cd mpich-$version
+./configure --prefix="$HOME/opt-cached" --disable-fortran
+make -j 4
+make install
+cd ../
+
+# this is used to remember the installed version
+rm -f "$HOME/opt-cached/installed-mpich"-*
+touch "$HOME/opt-cached/installed-mpich-$version"
+
