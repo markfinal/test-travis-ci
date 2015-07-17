@@ -3,6 +3,14 @@
 set -e
 set -x
 
+if test -e $HOME/opt-cached/lib/libxdrfile.so &&
+   test -e $HOME/opt-cached/installed-xdrfile-1.1.4
+then
+  echo "xdrfile 1.1.4 seems to be cached"
+  echo "skipping install"
+  exit 0
+fi
+
 echo "installing xdrfile library"
 # wget ftp://ftp.gromacs.org/pub/contrib/xdrfile-1.1.4.tar.gz
 # xdrfile was removed from gromacs ftp
@@ -11,8 +19,12 @@ echo "installing xdrfile library"
 wget people.sissa.it/~bussi/plumed/xdrfile-1.1.4.tar.gz
 tar xzf xdrfile-1.1.4.tar.gz
 cd xdrfile-1.1.4
-./configure --enable-shared --prefix="$HOME/opt"
+./configure --enable-shared --prefix="$HOME/opt-cached"
 make
 make install
 cd ../
+
+# this is used to remember the installed version
+rm -f "$HOME/opt-cached/installed-xdrfile"-*
+touch "$HOME/opt-cached/installed-xdrfile-1.1.4"
 

@@ -11,16 +11,28 @@ if [ -n "$1" ] ; then
   echo "installing cppcheck $version"
   version=$1
 else
-  echo "installing latest doxygen"
+  echo "installing latest cppcheck"
   version=$(git tag | tail -n 1)
 fi
 
+if test -e $HOME/opt-cached/bin/cppcheck &&
+   test -e $HOME/opt-cached/installed-cppcheck-$version
+then
+  echo "cppcheck $version seems to be cached"
+  echo "skipping install"
+  exit 0
+fi
 
 git checkout $version
-make -j 4 install CFGDIR="$HOME/opt/share/cppcheck/" CXXFLAGS="-O2 -march=native -mtune=native -Wunreachable-code" PREFIX="$HOME/opt"
+make -j 4 install CFGDIR="$HOME/opt-cached/share/cppcheck/" CXXFLAGS="-O2 -march=native -mtune=native -Wunreachable-code" PREFIX="$HOME/opt-cached"
 cd ../
 
 cppcheck --version
+
+# this is used to remember the installed version
+rm -f "$HOME/opt-cached/installed-cppcheck"-*
+touch "$HOME/opt-cached/installed-cppcheck-$version"
+
 
 
 

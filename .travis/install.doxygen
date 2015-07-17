@@ -3,13 +3,6 @@
 set -e
 set -x
 
-sudo apt-get install -y texlive            
-sudo apt-get install -y texlive-fonts-extra
-sudo apt-get install -y latex-xcolor       
-sudo apt-get install -y texlive-extra-utils
-sudo apt-get install -y texlive-font-utils 
-sudo apt-get install -y texlive-full       
-
 git clone https://github.com/doxygen/doxygen.git
 
 cd doxygen
@@ -22,10 +15,23 @@ else
   version=$(git tag | tail -n 1)
 fi
 
+if test -e $HOME/opt-cached/bin/doxygen &&
+   test -e $HOME/opt-cached/installed-doxygen-$version
+then
+  echo "doxygen $version seems to be cached"
+  echo "skipping install"
+  exit 0
+fi
+
 git checkout $version
 
-./configure --prefix="$HOME/opt"
+./configure --prefix="$HOME/opt-cached"
 make
 make install
 cd ../
+
+# this is used to remember the installed version
+rm -f "$HOME/opt-cached/installed-doxygen"-*
+touch "$HOME/opt-cached/installed-doxygen-$version"
+
 

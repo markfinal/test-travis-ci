@@ -1,4 +1,17 @@
 language: cpp
+cache:
+  directories:
+    - $HOME/opt-cached
+addons:
+  apt:
+    packages:
+    - libmatheval-dev
+#    - mpich2
+    - valgrind
+    - libatlas-base-dev
+    - doxygen-latex
+    - graphviz
+sudo: false
 env:
 # list of configurations to be attempted:
 # MPI + doc
@@ -29,35 +42,25 @@ matrix:
 # Possible additional variables:
 #   VALGRIND=yes to make valgrind tests, only when log contains string [valgrind]
 install:
-# setup environment to allow install on the home directory
-  - export PATH="$HOME/opt/bin:$PATH"
-  - export CPATH="$HOME/opt/include:$CPATH"
-  - export INCLUDE="$HOME/opt/include:$INCLUDE"
-  - export LIBRARY_PATH="$HOME/opt/lib:$LIBRARY_PATH"
-  - export LD_LIBRARY_PATH="$HOME/opt/lib:$LD_LIBRARY_PATH"
+# setup environment to allow install of cached dependencies
+  - source .travis/addpath "$HOME/opt-cached"
+# setup environment to allow install plumed on the home directory
+  - source .travis/addpath "$HOME/opt"
+# install cached dependencies
+# these applications are common to all travis jobs
+  - ./.travis/install.xdrfile
+  - ./.travis/install.cppcheck 1.69
+  - ./.travis/install.mpich
+  - ./.travis/install.doxygen Release_1_8_7
 # build the manual, only if log contains string [makedoc]
   - export PLUMED_NUM_THREADS=2
   - ./.travis/check.log makedoc  || MAKEDOC=no
   - ./.travis/check.log valgrind || VALGRIND=no
   - ./.travis/check.log almost   || ALMOST=no
-# install some package - these are fast, we install them anyway
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libmatheval-dev
-  - if test "$PLUMED_CXX" ; then ./.travis/install.xdrfile ; fi
-# cppcheck:
-  - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.69  ; fi
 # installation of these packages takes a lot of time
 # we do it only when needed
-  - if test "$PLUMED_CXX" == "mpic++" ; then sudo apt-get install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
-  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y graphviz            ; fi
+  - if test "$PLUMED_CXX" != "mpic++" ; then CONFIG_FLAGS="$CONFIG_FLAGS --disable-mpi" ; fi
 # doxygen from its repository (apt-get gets an old version)
-#  - test "$MAKEDOC" == yes && ./.travis/install.doxygen                   || true
-# it seems that here we can get precompiled doxygen and latex
-  - if test "$MAKEDOC" == yes ; then sudo apt-add-repository -y ppa:libreoffice/ppa ; fi
-  - if test "$MAKEDOC" == yes ; then sudo apt-get update -qq                     ; fi
-  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen doxygen-latex ; fi
-  - if test "$VALGRIND" == yes ; then sudo apt-get install -y valgrind           ; fi
-  - if test "$LAPACK" == yes  ; then sudo apt-get install libatlas-base-dev      ; fi
   - if test "$ALMOST" == yes ; then ./.travis/install.almost                     ; fi
   - if test "$ALMOST" == yes ; then ENALMOST="--enable-almost"                 ; fi
   - if test "$ALMOST" == yes ; then PLUMED_CPPFLAGS="$INCLUDE -I/usr/local/include -I/usr/local/include/almost"  ; fi
