@@ -4,13 +4,10 @@ export INCLUDE
 export LIBRARY_PATH
 export LD_LIBRARY_PATH
 
-for opt
-do
-  PATH="$opt/bin:$PATH"
-  CPATH="$opt/include:$CPATH"
-  INCLUDE="$opt/include:$INCLUDE"
-  LIBRARY_PATH="$opt/lib:$LIBRARY_PATH"
-  LD_LIBRARY_PATH="$opt/lib:$LD_LIBRARY_PATH"
-done
+PATH="$1/bin:$PATH"
+CPATH="$1/include:$CPATH"
+INCLUDE="$1/include:$INCLUDE"
+LIBRARY_PATH="$1/lib:$LIBRARY_PATH"
+LD_LIBRARY_PATH="$1/lib:$LD_LIBRARY_PATH"
 
 

@@ -1,0 +1,67 @@
+#! /bin/bash
+
+set -e
+
+# for each package
+# space separated list of versions to be installed
+doxygen_versions=1.8.7
+xdrfile_versions=1.1.4
+mpich_versions=3.1.4
+cppcheck_versions=1.69
+
+for package in doxygen xdrfile mpich cppcheck
+do
+  eval versions=\$${package}_versions
+  case "$package" in
+    (mpich)   check="/bin/mpirun /bin/mpic++" ;;
+    (xdrfile) check="/lib/libxdrfile.so" ;;
+    (*)       check="/bin/$package"
+  esac
+  for version in $versions
+  do
+    found=ko
+    prefix=$HOME/opt-cached/$package-$version
+    for file in $check
+    do
+      test -e $prefix/$file &&  found=ko
+    done
+    if test $found = ok
+    then
+      echo "$package $version is cached - skipping install"
+      continue
+    fi
+    echo "installing $package $version"
+    case "$package" in
+    (doxygen)
+      git clone https://github.com/doxygen/doxygen.git
+      cd doxygen
+      git checkout Release_"${version//./_}" 
+      ./configure --prefix="$prefix" && make && make install && make distclean
+      cd ../ ;;
+    (xdrfile) 
+# xdrfile was removed from gromacs ftp
+# as a workaround I added a copy to people.sissa.it/~bussi/plumed
+# this complies with its license
+      wget http://people.sissa.it/~bussi/plumed/xdrfile-$version.tar.gz
+      tar xzf xdrfile-$version.tar.gz
+      cd xdrfile-$version
+      ./configure --prefix="$prefix" --enable-shared && make && make install
+      cd ../ ;;
+    (mpich)
+      wget http://www.mpich.org/static/downloads/$version/mpich-$version.tar.gz
+      tar xzf mpich-$version.tar.gz
+      cd mpich-$version
+      ./configure --prefix="$prefix" --disable-fortran && make -j 4 && make install
+      cd ../ ;;
+    (cppcheck)
+      git clone https://github.com/danmar/cppcheck.git
+      cd cppcheck
+      git checkout $version
+      make -j 4 install CFGDIR="$prefix/share/cppcheck/" CXXFLAGS="-O2 -march=native -mtune=native -Wunreachable-code" PREFIX=$prefix
+      cd ../ ;;
+    esac
+  done
+done
+
+
+
