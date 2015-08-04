@@ -19,12 +19,12 @@ do
   esac
   for version in $versions
   do
-    found=ko
+    found=ok
 # each package is installed in a separate prefix
     prefix=$HOME/opt-cached/$package-$version
     for file in $check
     do
-      test -e $prefix/$file &&  found=ko
+      test -f $prefix/$file || found=ko
     done
     if test $found = ok
     then
