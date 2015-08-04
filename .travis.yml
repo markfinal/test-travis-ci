@@ -1,4 +1,7 @@
 language: cpp
+compiler:
+  - gcc
+  - clang
 cache:
   directories:
     - $HOME/opt-cached
@@ -16,32 +19,21 @@ env:
 # MPI + doc
 # this is the "master" one, it is going to update the manual if log contains [makedoc]
   - PLUMED_CC=mpicc PLUMED_CXX=mpic++ MAKEDOC=yes ALMOST=yes CONFIG_FLAGS="--disable-external-lapack --disable-external-blas"
-# the following are with debug flags
-# I think clang does not support debug-glibcxx, so I skip it here
-  - PLUMED_CC=gcc   PLUMED_CXX=g++    CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx" CONFIG_FLAGS="--disable-external-lapack --disable-external-blas"
-# with debug flags there are issues with openmp+mpi on travis - I disable openmp here
-  - PLUMED_CC=mpicc PLUMED_CXX=mpic++ CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx --disable-openmp" CONFIG_FLAGS="--disable-external-lapack --disable-external-blas"
-# then I try serial compilers
-  - CC=clang CXX=clang++ PLUMED_CC=clang PLUMED_CXX=clang++
-  - PLUMED_CC=gcc   PLUMED_CXX=g++
-# then check with different optimization flags
-  - CC=clang CXX=clang++ PLUMED_CC=clang PLUMED_CXX=clang++ PLUMED_CXXFLAGS=-O3
-  - CC=clang CXX=clang++ PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3
-  - PLUMED_CC=gcc   PLUMED_CXX=g++     PLUMED_CXXFLAGS=-O3
-# test using external blas with internal lapack
+# serial with debug
+  - PLUMED_CC=auto   PLUMED_CXX=auto  CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx" CONFIG_FLAGS="--disable-external-lapack --disable-external-blas"
+# parallel with debug
+  - PLUMED_CC=mpicc PLUMED_CXX=mpic++ CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx" CONFIG_FLAGS="--disable-external-lapack --disable-external-blas"
+# serial optimized
+  - PLUMED_CC=auto  PLUMED_CXX=auto    PLUMED_CXXFLAGS=-O3
+# parallel optimized (with internal lapack as a double check)
   - PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3 CONFIG_FLAGS="--disable-external-lapack"
 # cppcheck
   - CPPCHECK=yes
-# with debug flags there are issues with openmp+mpi on travis - I disable openmp here
-# I leave this test here to monitor if things change in the future, allowing it to fail
-  - PLUMED_CC=mpicc PLUMED_CXX=mpic++ CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx"
-matrix:
-  allow_failures:
-    - env: CPPCHECK=yes
-    - env: PLUMED_CC=mpicc PLUMED_CXX=mpic++ CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx"
 # Possible additional variables:
 #   VALGRIND=yes to make valgrind tests, only when log contains string [valgrind]
 install:
+  - if test "$PLUMED_CC" == auto ; then PLUMED_CC=$CC ; fi
+  - if test "$PLUMED_CXX" == auto ; then PLUMED_CC=$CXX ; fi
 # install all the required dependencies
   - .travis/install.all
 # add to path the proper versions of dependencies
