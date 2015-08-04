@@ -20,6 +20,7 @@ do
   for version in $versions
   do
     found=ko
+# each package is installed in a separate prefix
     prefix=$HOME/opt-cached/$package-$version
     for file in $check
     do
@@ -31,13 +32,15 @@ do
       continue
     fi
     echo "installing $package $version"
+# install command is slightly different for each package:
     case "$package" in
     (doxygen)
       git clone https://github.com/doxygen/doxygen.git
       cd doxygen
       git checkout Release_"${version//./_}" 
       ./configure --prefix="$prefix" && make && make install && make distclean
-      cd ../ ;;
+      cd ../
+      rm -fr doxygen ;;
     (xdrfile) 
 # xdrfile was removed from gromacs ftp
 # as a workaround I added a copy to people.sissa.it/~bussi/plumed
@@ -46,19 +49,22 @@ do
       tar xzf xdrfile-$version.tar.gz
       cd xdrfile-$version
       ./configure --prefix="$prefix" --enable-shared && make && make install
-      cd ../ ;;
+      cd ../
+      rm -fr xdrfile-$version ;;
     (mpich)
       wget http://www.mpich.org/static/downloads/$version/mpich-$version.tar.gz
       tar xzf mpich-$version.tar.gz
       cd mpich-$version
       ./configure --prefix="$prefix" --disable-fortran && make -j 4 && make install
-      cd ../ ;;
+      cd ../
+      rm -fr mpich-$version ;;
     (cppcheck)
       git clone https://github.com/danmar/cppcheck.git
       cd cppcheck
       git checkout $version
       make -j 4 install CFGDIR="$prefix/share/cppcheck/" CXXFLAGS="-O2 -march=native -mtune=native -Wunreachable-code" PREFIX=$prefix
-      cd ../ ;;
+      cd ../
+      rm -fr cppcheck ;;
     esac
   done
 done

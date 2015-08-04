@@ -6,7 +6,6 @@ addons:
   apt:
     packages:
     - libmatheval-dev
-#    - mpich2
     - valgrind
     - libatlas-base-dev
     - doxygen-latex
@@ -23,10 +22,11 @@ env:
 # with debug flags there are issues with openmp+mpi on travis - I disable openmp here
   - PLUMED_CC=mpicc PLUMED_CXX=mpic++ CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx --disable-openmp" CONFIG_FLAGS="--disable-external-lapack --disable-external-blas"
 # then I try serial compilers
-  - PLUMED_CC=clang PLUMED_CXX=clang++
+  - CC=clang CXX=clang++ PLUMED_CC=clang PLUMED_CXX=clang++
   - PLUMED_CC=gcc   PLUMED_CXX=g++
 # then check with different optimization flags
-  - PLUMED_CC=clang PLUMED_CXX=clang++ PLUMED_CXXFLAGS=-O3
+  - CC=clang CXX=clang++ PLUMED_CC=clang PLUMED_CXX=clang++ PLUMED_CXXFLAGS=-O3
+  - CC=clang CXX=clang++ PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3
   - PLUMED_CC=gcc   PLUMED_CXX=g++     PLUMED_CXXFLAGS=-O3
 # test using external blas with internal lapack
   - PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3 CONFIG_FLAGS="--disable-external-lapack"
