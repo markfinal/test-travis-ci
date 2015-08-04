@@ -32,8 +32,6 @@ compiler:
   - gcc
   - clang
 install:
-  - if test "$PLUMED" == serial   ; then PLUMED_CC=$CC   ; PLUMED_CXX=$CXX; fi
-  - if test "$PLUMED" == parallel ; then PLUMED_CC=mpicc ; PLUMED_CXX=mpic++ ; fi
 # only upload doc with gcc
   - if test "CC" == clang ; then MAKEDOC=no ; fi
 # install all the required dependencies
@@ -61,19 +59,20 @@ script:
   - CONFIG_FLAGS="$CONFIG_FLAGS --enable-modules=crystallization:manyrestraints"
 
 # BUILD:
-# this is done only if PLUMED_CXX is defined
-# we have to pass the full path since on travis machines sudo does not have compilers in the path
-  - if test "$PLUMED_CXX" ; then ./configure CXX=$(PLUMED_CXX) CC=$(PLUMED_CC) CXXFLAGS="$PLUMED_CXXFLAGS" LDFLAGS="$PLUMED_LDFLAGS" CPPFLAGS="$PLUMED_CPPFLAGS" $CONFIG_FLAGS ; fi
-  - if test "$PLUMED_CXX" ; then make -j 2 ; fi
+# this is done only if PLUMED is defined
+  - if test "$PLUMED" == serial   ; then PLUMED_CC=$CC   ; PLUMED_CXX=$CXX; fi
+  - if test "$PLUMED" == parallel ; then PLUMED_CC=mpicc ; PLUMED_CXX=mpic++ ; fi
+  - if test "$PLUMED" ; then ./configure CXX="$PLUMED_CXX" CC="$PLUMED_CC" CXXFLAGS="$PLUMED_CXXFLAGS" LDFLAGS="$PLUMED_LDFLAGS" CPPFLAGS="$PLUMED_CPPFLAGS" $CONFIG_FLAGS ; fi
+  - if test "$PLUMED" ; then make -j 2 ; fi
 # we install plumed so that it is in the path
-  - if test "$PLUMED_CXX" ; then make install prefix="$HOME/opt" ; fi
+  - if test "$PLUMED" ; then make install prefix="$HOME/opt" ; fi
 
 # TEST:
   - if test "$VALGRIND" == yes ; then OPT=valgrind ; else OPT="" ; fi
-  - if test "$PLUMED_CXX" ; then make -C regtest $OPT ; fi
+  - if test "$PLUMED" ; then make -C regtest $OPT ; fi
   - if test "$MAKEDOC" == yes ; then make -C regtest copytodoc ; fi
   - if test "$MAKEDOC" == yes ; then make doc >/dev/null ; fi
-  - if test "$PLUMED_CXX" ; then make -C regtest checkfail ; fi
+  - if test "$PLUMED" ; then make -C regtest checkfail ; fi
 
 # CPPCHECK:
 # this is required so as to have all the include files inplace:
