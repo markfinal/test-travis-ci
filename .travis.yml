@@ -48,12 +48,12 @@ install:
   - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.69  ; fi
 # installation of these packages takes a lot of time
 # we do it only when needed
-  - if test "$PLUMED_CXX" == "mpic++" ; then sudo apt-get install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
+  - if test "$PLUMED_CXX" == "mpic++" ; then sudo apt-get install -y libopenmpi-dev openmpi-bin ; fi
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y graphviz            ; fi
 # doxygen from its repository (apt-get gets an old version)
 #  - test "$MAKEDOC" == yes && ./.travis/install.doxygen                   || true
 # it seems that here we can get precompiled doxygen and latex
-  - if test "$MAKEDOC" == yes ; then sudo apt-add-repository -y ppa:libreoffice/ppa ; fi
+#  - if test "$MAKEDOC" == yes ; then sudo apt-add-repository -y ppa:libreoffice/ppa ; fi
   - if test "$MAKEDOC" == yes ; then sudo apt-get update -qq                     ; fi
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen doxygen-latex ; fi
   - if test "$VALGRIND" == yes ; then sudo apt-get install -y valgrind           ; fi
