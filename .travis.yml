@@ -44,7 +44,7 @@ install:
   - sudo apt-get install -y libmatheval-dev
   - if test "$PLUMED_CXX" ; then ./.travis/install.xdrfile ; fi
 # cppcheck:
-  - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.69  ; fi
+  - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.70  ; fi
 # installation of these packages takes a lot of time
 # we do it only when needed
   - if test "$PLUMED_CXX" == "mpic++" ; then sudo apt-get install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
