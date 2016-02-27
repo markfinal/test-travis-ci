@@ -39,25 +39,25 @@ install:
   - APT_GET=apt-get
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then APT_GET="brew" ; fi
   - brew update
-  - brew install -y libmatheval-dev
+#  - brew install -y libmatheval-dev
   - if test "$PLUMED_CXX" ; then ./.travis/install.xdrfile ; fi
 # cppcheck:
   - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.69  ; fi
 # installation of these packages takes a lot of time
 # we do it only when needed
-  - if test "$PLUMED_CXX" == "mpic++" ; then brew install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
-  - if test "$MAKEDOC" == yes ; then brew install -y graphviz            ; fi
+#  - if test "$PLUMED_CXX" == "mpic++" ; then brew install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
+#  - if test "$MAKEDOC" == yes ; then brew install -y graphviz            ; fi
 # doxygen from its repository (apt-get gets an old version)
 #  - test "$MAKEDOC" == yes && ./.travis/install.doxygen                   || true
 # it seems that here we can get precompiled doxygen and latex
-  - if test "$MAKEDOC" == yes ; then sudo apt-add-repository -y ppa:libreoffice/ppa ; fi
-  - if test "$MAKEDOC" == yes ; then brew update -qq                     ; fi
-  - if test "$MAKEDOC" == yes ; then brew install -y doxygen doxygen-latex ; fi
-  - if test "$VALGRIND" == yes ; then brew install -y valgrind           ; fi
-  - if test "$LAPACK" == yes ; then brew install libatlas-base-dev      ; fi
-  - if test "$ALMOST" == yes ; then brew install libatlas-base-dev      ; fi
-  - if test "$ALMOST" == yes ; then ./.travis/install.almost                     ; fi
-  - if test "$ALMOST" == yes ; then ENALMOST="--enable-almost"                 ; fi
+#  - if test "$MAKEDOC" == yes ; then sudo apt-add-repository -y ppa:libreoffice/ppa ; fi
+#  - if test "$MAKEDOC" == yes ; then brew update -qq                     ; fi
+#  - if test "$MAKEDOC" == yes ; then brew install -y doxygen doxygen-latex ; fi
+#  - if test "$VALGRIND" == yes ; then brew install -y valgrind           ; fi
+#  - if test "$LAPACK" == yes ; then brew install libatlas-base-dev      ; fi
+#  - if test "$ALMOST" == yes ; then brew install libatlas-base-dev      ; fi
+#  - if test "$ALMOST" == yes ; then ./.travis/install.almost                     ; fi
+#  - if test "$ALMOST" == yes ; then ENALMOST="--enable-almost"                 ; fi
   - if test "$ALMOST" == yes ; then PLUMED_CPPFLAGS="-I$HOME/opt/include -I$HOME/opt/include/almost"  ; fi
 # moreover, we hardcode path to dynamic library, required for xdrfile to link properly
 # I do it only when LD_LIBRARY_PATH is non blank, since otherwise clang gives problems
