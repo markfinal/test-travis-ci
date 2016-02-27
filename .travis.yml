@@ -1,5 +1,5 @@
 os:
-  - linux
+#  - linux
   - osx
 language: cpp
 env:
@@ -38,7 +38,7 @@ install:
 # install some package - these are fast, we install them anyway
   - APT_GET=apt-get
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then APT_GET="brew" ; fi
-  - sudo $APT_GET update -qq
+  - sudo $APT_GET update
   - sudo $APT_GET install -y libmatheval-dev
   - if test "$PLUMED_CXX" ; then ./.travis/install.xdrfile ; fi
 # cppcheck:
