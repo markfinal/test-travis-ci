@@ -1,3 +1,6 @@
+os:
+  - linux
+  - osx
 language: cpp
 env:
 # list of configurations to be attempted:
@@ -33,24 +36,26 @@ install:
   - ./.travis/check.log valgrind || VALGRIND=no
   - ./.travis/check.log almost   || ALMOST=no
 # install some package - these are fast, we install them anyway
-  - sudo apt-get update -qq
-  - sudo apt-get install -y libmatheval-dev
+  - APT_GET=apt-get
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then APT_GET="brew" ; fi
+  - sudo $APT_GET update -qq
+  - sudo $APT_GET install -y libmatheval-dev
   - if test "$PLUMED_CXX" ; then ./.travis/install.xdrfile ; fi
 # cppcheck:
   - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.69  ; fi
 # installation of these packages takes a lot of time
 # we do it only when needed
-  - if test "$PLUMED_CXX" == "mpic++" ; then sudo apt-get install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
-  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y graphviz            ; fi
+  - if test "$PLUMED_CXX" == "mpic++" ; then sudo $APT_GET install -y libopenmpi1.5-dev openmpi1.5-bin ; fi
+  - if test "$MAKEDOC" == yes ; then sudo $APT_GET install -y graphviz            ; fi
 # doxygen from its repository (apt-get gets an old version)
 #  - test "$MAKEDOC" == yes && ./.travis/install.doxygen                   || true
 # it seems that here we can get precompiled doxygen and latex
   - if test "$MAKEDOC" == yes ; then sudo apt-add-repository -y ppa:libreoffice/ppa ; fi
-  - if test "$MAKEDOC" == yes ; then sudo apt-get update -qq                     ; fi
-  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen doxygen-latex ; fi
-  - if test "$VALGRIND" == yes ; then sudo apt-get install -y valgrind           ; fi
-  - if test "$LAPACK" == yes ; then sudo apt-get install libatlas-base-dev      ; fi
-  - if test "$ALMOST" == yes ; then sudo apt-get install libatlas-base-dev      ; fi
+  - if test "$MAKEDOC" == yes ; then sudo $APT_GET update -qq                     ; fi
+  - if test "$MAKEDOC" == yes ; then sudo $APT_GET install -y doxygen doxygen-latex ; fi
+  - if test "$VALGRIND" == yes ; then sudo $APT_GET install -y valgrind           ; fi
+  - if test "$LAPACK" == yes ; then sudo $APT_GET install libatlas-base-dev      ; fi
+  - if test "$ALMOST" == yes ; then sudo $APT_GET install libatlas-base-dev      ; fi
   - if test "$ALMOST" == yes ; then ./.travis/install.almost                     ; fi
   - if test "$ALMOST" == yes ; then ENALMOST="--enable-almost"                 ; fi
   - if test "$ALMOST" == yes ; then PLUMED_CPPFLAGS="-I$HOME/opt/include -I$HOME/opt/include/almost"  ; fi
