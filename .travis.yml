@@ -69,10 +69,10 @@ install:
   - if test "$PLUMED_CXX" == "mpic++" -a "$TRAVIS_OS_NAME" == "linux" ; then sudo apt-get install -y libopenmpi-dev openmpi-bin ; fi
   - if test "$PLUMED_CXX" == "mpic++" -a "$TRAVIS_OS_NAME" == "osx" ;   then brew install openmpi ; fi
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y graphviz            ; fi
-# doxygen from its repository (apt-get gets an old version)
-#  - test "$MAKEDOC" == yes && ./.travis/install.doxygen                   || true
-# it seems that here we can get precompiled doxygen and latex
-  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen doxygen-latex ; fi
+# install doxygen-latex
+  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen-latex ; fi
+# then replace doxygen with the desided version
+  - if test "$MAKEDOC" == yes ; then ./.travis/install.doxygen Release_1_8_7 ; fi
   - if test "$VALGRIND" == yes ; then sudo apt-get install -y valgrind           ; fi
   - if test "$LAPACK" == yes ; then sudo apt-get -y install libatlas-base-dev      ; fi
   - if test "$ALMOST" == yes ; then sudo apt-get -y install libatlas-base-dev      ; fi
