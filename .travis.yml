@@ -62,7 +62,7 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
 # install some package - these are fast, we install them anyway
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libmatheval-dev ; fi
-  - if test "$PLUMED_CXX" -a -a "$TRAVIS_OS_NAME" == "linux" ; then ./.travis/install.xdrfile ; fi
+  - if test "$PLUMED_CXX" ; then ./.travis/install.xdrfile ; fi
 # cppcheck:
   - if test "$CPPCHECK" == yes ; then  ./.travis/install.cppcheck 1.69  ; fi
 # installation of these packages takes a lot of time
