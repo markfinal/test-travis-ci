@@ -82,7 +82,7 @@ void CoordinationNumbers::registerKeywords( Keywords& keys ){
   MultiColvar::registerKeywords( keys );
   keys.use("SPECIES"); keys.use("SPECIESA"); keys.use("SPECIESB");
   keys.add("compulsory","NN","6","The n parameter of the switching function ");
-  keys.add("compulsory","MM","12","The m parameter of the switching function ");
+  keys.add("compulsory","MM","0","The m parameter of the switching function; 0 implies 2*NN");
   keys.add("compulsory","D_0","0.0","The d_0 parameter of the switching function");
   keys.add("compulsory","R_0","The r_0 parameter of the switching function");
   keys.add("optional","SWITCH","This keyword is used if you want to employ an alternative to the continuous swiching function defined above. "
@@ -134,8 +134,8 @@ double CoordinationNumbers::compute( const unsigned& tindex, AtomValuePack& myat
          sw = switchingFunction.calculateSqr( d2, dfunc );
   
          value += sw;             
-         myatoms.addAtomsDerivatives( 1, 0, (-dfunc)*distance );
-         myatoms.addAtomsDerivatives( 1, i,  (dfunc)*distance );
+         addAtomDerivatives( 1, 0, (-dfunc)*distance, myatoms );
+         addAtomDerivatives( 1, i,  (dfunc)*distance, myatoms );
          myatoms.addBoxDerivatives( 1, (-dfunc)*Tensor(distance,distance) );
       }
    }

@@ -116,6 +116,8 @@ public:
   void parseAtomList(const std::string&key,std::vector<AtomNumber> &t);
 /// Parse an list of atom with a numbred keyword
   void parseAtomList(const std::string&key,const int num, std::vector<AtomNumber> &t);
+/// Convert a set of read in strings into an atom list (this is used in parseAtomList)
+  void interpretAtomList( std::vector<std::string>& strings, std::vector<AtomNumber> &t);
 /// Change the box shape 
   void changeBox( const Tensor& newbox );
 /// Get reference to Pbc
@@ -152,7 +154,7 @@ public:
 /// ActionWithArguments and ActionAtomistic
   void calculateAtomicNumericalDerivatives( ActionWithValue* a, const unsigned& startnum );
 
-  void retrieveAtoms();
+  virtual void retrieveAtoms();
   void applyForces();
   void lockRequests();
   void unlockRequests();

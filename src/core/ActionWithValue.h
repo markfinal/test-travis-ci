@@ -121,7 +121,7 @@ public:
 /// The components in the action will depend on the user
   static void useCustomisableComponents(Keywords& keys);
 /// Are we not calculating derivatives
-  bool doNotCalculateDerivatives() const ;
+  virtual bool doNotCalculateDerivatives() const ;
 /// Get the value of one of the components of the PLMD::Action
   double getOutputQuantity( const unsigned j ) const ;
 /// Get the value with a specific name (N.B. if there is no such value this returns zero)
@@ -198,6 +198,7 @@ int ActionWithValue::getNumberOfComponents() const {
 
 inline
 void ActionWithValue::useNumericalDerivatives(){
+  plumed_massert( keywords.exists("NUMERICAL_DERIVATIVES"), "numerical derivatives are not permitted for this action" );
   numericalDerivatives=true;
 }
 
