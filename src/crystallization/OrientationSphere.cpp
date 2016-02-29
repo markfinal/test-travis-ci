@@ -30,7 +30,7 @@ namespace crystallization {
 void OrientationSphere::registerKeywords( Keywords& keys ){
   multicolvar::MultiColvarFunction::registerKeywords( keys );
   keys.add("compulsory","NN","6","The n parameter of the switching function ");
-  keys.add("compulsory","MM","12","The m parameter of the switching function ");
+  keys.add("compulsory","MM","0","The m parameter of the switching function; 0 implies 2*NN");
   keys.add("compulsory","D_0","0.0","The d_0 parameter of the switching function");
   keys.add("compulsory","R_0","The r_0 parameter of the switching function");
   keys.add("optional","SWITCH","This keyword is used if you want to employ an alternative to the continuous swiching function defined above. "
@@ -46,6 +46,7 @@ OrientationSphere::OrientationSphere(const ActionOptions&ao):
 Action(ao),
 MultiColvarFunction(ao)
 {
+  if( getNumberOfBaseMultiColvars()>1 ) warning("not sure if orientation sphere works with more than one base multicolvar - check numerical derivatives");
   // Read in the switching function
   std::string sw, errors; parse("SWITCH",sw);
   if(sw.length()>0){
@@ -67,26 +68,18 @@ MultiColvarFunction(ao)
 }
 
 double OrientationSphere::compute( const unsigned& tindex, multicolvar::AtomValuePack& myatoms ) const {
-   // Make sure derivatives for central atom are only calculated once
-   VectorMultiColvar* vv = dynamic_cast<VectorMultiColvar*>( getBaseMultiColvar(0) );
-   vv->firstcall=true;
-
    double d2, sw, value=0, denom=0, dot, f_dot, dot_df, dfunc; 
    unsigned ncomponents=getBaseMultiColvar(0)->getNumberOfQuantities();
-   unsigned nder=myatoms.getNumberOfDerivatives();
    std::vector<double> catom_orient( ncomponents ), this_orient( ncomponents ), catom_der( ncomponents ); 
 
    Vector catom_pos = myatoms.getPosition(0);
-   getVectorForTask( myatoms.getIndex(0), true, catom_orient );
+   getVectorForTask( myatoms.getIndex(0), true, catom_orient ); 
    multicolvar::CatomPack atom0; 
-   MultiValue myder0(ncomponents,nder), myder1(ncomponents,nder); 
-   if( !doNotCalculateDerivatives() ){
-       atom0=getCentralAtomPackFromInput( myatoms.getIndex(0) );
-       getVectorDerivatives( myatoms.getIndex(0), true, myder0 );
-   }
+   MultiValue& myder0=getVectorDerivatives( myatoms.getIndex(0), true ); 
+   if( !doNotCalculateDerivatives() ) atom0=getCentralAtomPackFromInput( myatoms.getIndex(0) );
 
    for(unsigned i=1;i<myatoms.getNumberOfAtoms();++i){
-      Vector& distance=myatoms.getPosition(i);  // getSeparation( catom_pos, myatoms.getPosition(i) );
+      Vector& distance=myatoms.getPosition(i);  
       if ( (d2=distance[0]*distance[0])<rcut2 &&
            (d2+=distance[1]*distance[1])<rcut2 &&
            (d2+=distance[2]*distance[2])<rcut2) {
@@ -103,37 +96,37 @@ double OrientationSphere::compute( const unsigned& tindex, multicolvar::AtomValu
              for(unsigned k=2;k<catom_orient.size();++k){
                  this_orient[k]*=sw*dot_df; catom_der[k]=sw*dot_df*catom_orient[k];
              }
-             getVectorDerivatives( myatoms.getIndex(i), true, myder1 );
+             MultiValue& myder1=getVectorDerivatives( myatoms.getIndex(i), true );
              mergeVectorDerivatives( 1, 2, this_orient.size(), myatoms.getIndex(0), this_orient, myder0, myatoms );  
              mergeVectorDerivatives( 1, 2, catom_der.size(), myatoms.getIndex(i), catom_der, myder1, myatoms );
              myatoms.addComDerivatives( 1, f_dot*(-dfunc)*distance, atom0 );
-             multicolvar::CatomPack atom1=getCentralAtomPackFromInput( myatoms.getIndex(i) );
-             myatoms.addComDerivatives( 1, f_dot*(dfunc)*distance, atom1 );
+             addAtomDerivatives( 1, i, f_dot*(dfunc)*distance, myatoms );
              myatoms.addBoxDerivatives( 1, (-dfunc)*f_dot*Tensor(distance,distance) );
              myder1.clearAll();
               
-             myatoms.addComDerivatives( 0, (-dfunc)*distance, atom0 );
-             myatoms.addComDerivatives( 0, (dfunc)*distance, atom1  );
-             myatoms.addBoxDerivatives( 0, (-dfunc)*Tensor(distance,distance) );
+             myatoms.addComDerivatives( -1, (-dfunc)*distance, atom0 );
+             addAtomDerivatives( -1, i, (dfunc)*distance, myatoms );
+             myatoms.addTemporyBoxDerivatives( (-dfunc)*Tensor(distance,distance) );
 
          }
          value += sw*f_dot;
          denom += sw;
       }
    }
-   double df2, pref=calculateCoordinationPrefactor( denom, df2 );
-   
+   double rdenom, df2, pref=calculateCoordinationPrefactor( denom, df2 );
+   if( fabs(denom)>epsilon ){ rdenom = 1.0 / denom; }
+   else { plumed_assert(fabs(value)<epsilon); rdenom=1.0; } 
+  
    // Now divide everything
-   double denom2=denom*denom;
+   double rdenom2=rdenom*rdenom;
    updateActiveAtoms( myatoms ); MultiValue& myvals=myatoms.getUnderlyingMultiValue();
    for(unsigned i=0;i<myvals.getNumberActive();++i){
        unsigned ider=myvals.getActiveIndex(i);
-       double  dgd=myvals.getDerivative(0,ider);
-       myvals.setDerivative( 1, ider, (pref*myvals.getDerivative(1,ider)+value*df2*dgd)/denom - (value*pref*dgd)/denom2 );
+       double  dgd=myvals.getTemporyDerivative(ider);
+       myvals.setDerivative( 1, ider, rdenom*(pref*myvals.getDerivative(1,ider)+value*df2*dgd) - (value*pref*dgd)*rdenom2 );
    } 
-   myvals.clear(0); myvals.setValue( 0, 1.0 );
 
-   return pref*value / denom;
+   return pref*rdenom*value;
 }
 
 }

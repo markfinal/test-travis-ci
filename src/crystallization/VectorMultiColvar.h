@@ -34,9 +34,6 @@ friend class VolumeGradientBase;
 private:
 /// Are we storing the director of the vector of the vector
   bool store_director;
-/// Used to make sure central atom position is only calculated
-/// once when using orientation sphere
-  bool firstcall;
 /// How many components does the vector have
   unsigned ncomponents;
 /// These are tempory vectors that are used to store values and directors
@@ -61,7 +58,7 @@ public:
 /// Get the number of components in the vector
   unsigned getNumberOfComponentsInVector() const ;
 /// Get the number of quantities we are calculating per step
-  unsigned getNumberOfQuantities();
+  unsigned getNumberOfQuantities() const ;
 /// Can we differentiate the orientation - yes we can the multicolvar is a vector
   bool hasDifferentiableOrientation() const { return true; }
 ///  This makes sure we are not calculating the director when we do LocalAverage
@@ -74,7 +71,7 @@ unsigned VectorMultiColvar::getNumberOfComponentsInVector() const {
 }
 
 inline
-unsigned VectorMultiColvar::getNumberOfQuantities(){
+unsigned VectorMultiColvar::getNumberOfQuantities() const {
   return 2 + ncomponents;
 }
 

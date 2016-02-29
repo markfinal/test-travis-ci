@@ -54,7 +54,8 @@ protected:
 /// Read two group keywords
   void readTwoGroups( const std::string& key1, const std::string& key2, std::vector<AtomNumber>& all_atoms );
 /// Read three groups
-  void readThreeGroups( const std::string& key1, const std::string& key2, const std::string& key3, const bool& allow2, std::vector<AtomNumber>& all_atoms );
+  void readThreeGroups( const std::string& key1, const std::string& key2, const std::string& key3, 
+                        const bool& allow2, const bool& no_third_dim_accum, std::vector<AtomNumber>& all_atoms );
 /// Add a collective variable
   void addColvar( const std::vector<unsigned>& newatoms );
 public:
@@ -63,20 +64,7 @@ public:
   static void registerKeywords( Keywords& keys );
 /// Get the position of atom iatom
   const Vector & getPosition(unsigned) const;
-/// Calculate the multicolvar
-  virtual void calculate();
-/// Update the atoms that have derivatives
-  void updateActiveAtoms( AtomValuePack& myatoms ) const ;
-/// This is used in MultiColvarBase only - it is used to setup the link cells
-  Vector getPositionOfAtomForLinkCells( const unsigned& iatom ) const ;
-/// Atoms are always active
-  bool isCurrentlyActive( const unsigned& bno, const unsigned& code ){ return true; }
 };
-
-inline
-Vector MultiColvar::getPositionOfAtomForLinkCells( const unsigned& iatom ) const {
-  return ActionAtomistic::getPosition( iatom );
-}
 
 }
 }

@@ -75,7 +75,7 @@ void SimpleCubic::registerKeywords( Keywords& keys ){
   multicolvar::MultiColvar::registerKeywords( keys );
   keys.use("SPECIES"); keys.use("SPECIESA"); keys.use("SPECIESB");
   keys.add("compulsory","NN","6","The n parameter of the switching function ");
-  keys.add("compulsory","MM","12","The m parameter of the switching function ");
+  keys.add("compulsory","MM","0","The m parameter of the switching function; 0 implies 2*NN");
   keys.add("compulsory","D_0","0.0","The d_0 parameter of the switching function");
   keys.add("compulsory","R_0","The r_0 parameter of the switching function");
   keys.add("optional","SWITCH","This keyword is used if you want to employ an alternative to the continuous swiching function defined above. "
@@ -148,22 +148,21 @@ double SimpleCubic::compute( const unsigned& tindex, multicolvar::AtomValuePack&
          myder[2] = 4*z3/t2-4*distance[2]*t3; 
 
          value += sw*tmp; fder = (+dfunc)*tmp*distance + sw*myder;
-         myatoms.addAtomsDerivatives( 1, 0, -fder );
-         myatoms.addAtomsDerivatives( 1, i, +fder );
+         addAtomDerivatives( 1, 0, -fder, myatoms );
+         addAtomDerivatives( 1, i, +fder, myatoms );
          // Tens is a constructor that you build by taking the vector product of two vectors (remember the scalars!)
          myatoms.addBoxDerivatives( 1, Tensor(distance,-fder) );
  
          norm += sw;
-         myatoms.addAtomsDerivatives( 0, 0, (-dfunc)*distance );
-         myatoms.addAtomsDerivatives( 0, i, (+dfunc)*distance );
-         myatoms.addBoxDerivatives( 0, (-dfunc)*Tensor(distance,distance) );
+         addAtomDerivatives( -1, 0, (-dfunc)*distance, myatoms );
+         addAtomDerivatives( -1, i, (+dfunc)*distance, myatoms );
+         myatoms.addTemporyBoxDerivatives( (-dfunc)*Tensor(distance,distance) );
       }
    }
    
-   myatoms.setValue(1, value); myatoms.setValue(0, norm ); 
+   myatoms.setValue(1, value);  
    // values -> der of... value [0], weight[1], x coord [2], y, z... [more magic]
-   updateActiveAtoms( myatoms ); myatoms.getUnderlyingMultiValue().quotientRule( 1, 0, 1 ); 
-   myatoms.getUnderlyingMultiValue().clear(0); myatoms.setValue( 0, 1.0 );
+   updateActiveAtoms( myatoms ); myatoms.getUnderlyingMultiValue().quotientRule( 1, norm, 1 ); 
 
    return value / norm; // this is equivalent to getting an "atomic" CV
 }

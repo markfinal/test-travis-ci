@@ -33,76 +33,38 @@ void MultiColvarFunction::registerKeywords( Keywords& keys ){
   MultiColvarBase::registerKeywords( keys );
   keys.add("compulsory","DATA","the labels of the action that calculates the multicolvars we are interested in");
   keys.reserve("compulsory","WTOL","if the base multicolvars have weights then you must define a hard cutoff on those you want to consider explicitally");
-  keys.reset_style("NUMERICAL_DERIVATIVES","hidden");
+  keys.remove("NUMERICAL_DERIVATIVES");
 }
 
 MultiColvarFunction::MultiColvarFunction(const ActionOptions& ao):
 Action(ao),
-MultiColvarBase(ao),
-wtolerance(0.0)
+MultiColvarBase(ao)
 {
   // Read in the arguments
-  std::string mname; 
-  std::vector<std::string> mlabs; parseVector("DATA",mlabs);
-  log.printf("  using colvars calculated by actions "); bool useweights=false;
-  for(unsigned i=0;i<mlabs.size();++i){
-      log.printf("%s ",mlabs[i].c_str() );
-      MultiColvarBase* mycolv = plumed.getActionSet().selectWithLabel<MultiColvarBase*>(mlabs[i]); 
-      if(!mycolv) error("action labeled " + mlabs[i] + " does not exist or is not a multicolvar");
-      // Check all base multicolvars are of same type
-      if( i==0 ){ 
-          mname = mycolv->getName();
-          if( mycolv->isPeriodic() ) error("multicolvar functions don't work with this multicolvar");
+  if( keywords.exists("DATA") ){ 
+      std::vector<std::string> mlabs; parseVector("DATA",mlabs);
+
+      if( keywords.exists("WTOL") ){
+          double wtolerance; parse("WTOL",wtolerance); 
+          log.printf("  only considering those colvars with a weight greater than %f \n",wtolerance);
+          bool found_acts=interpretInputMultiColvars(mlabs,wtolerance);
+          if( !found_acts ) error("one or more items in input is not the label of a multicolvar");
       } else {
-          if( mname!=mycolv->getName() ) error("All input multicolvars must be of same type"); 
+          bool found_acts=interpretInputMultiColvars(mlabs,0.0);
+          if( !found_acts ) error("one or more items in input is not the label of a multicolvar");
       }
-      // Make sure we use low memory option in base colvar
-      mycolv->setLowMemOption( usingLowMem() );
-      // Add the dependency
-      addDependency(mycolv);
-      // Ensure weights are considered
-      if( mycolv->weightHasDerivatives ) useweights=true;
-      // And store the multicolvar base
-      mybasemulticolvars.push_back( mycolv );
-      // And track which variable stores each colvar
-      for(unsigned j=0;j<mycolv->getFullNumberOfTasks();++j) colvar_label.push_back( i );
-  }
-  log.printf("\n"); 
-  if( keywords.exists("WTOL") && useweights ){
-      parse("WTOL",wtolerance); 
-      log.printf("  only considering those colvars with a weight greater than %f \n",wtolerance);
-      for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasedata.push_back( mybasemulticolvars[i]->buildDataStashes( true, wtolerance ) ); 
-  } else {
-      for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasedata.push_back( mybasemulticolvars[i]->buildDataStashes( false, 0.0 ) );
   }
 }
 
 void MultiColvarFunction::setupAtomLists(){
-  // Copy lists of atoms involved from base multicolvars 
-  std::vector<AtomNumber> all_atoms, tmp_atoms;
-  for(unsigned i=0;i<mybasemulticolvars.size();++i){
-      BridgedMultiColvarFunction* mybr=dynamic_cast<BridgedMultiColvarFunction*>( mybasemulticolvars[i] );
-      if( mybr ) tmp_atoms=(mybr->mycolv)->getAbsoluteIndexes();
-      else tmp_atoms=mybasemulticolvars[i]->getAbsoluteIndexes();
-      for(unsigned j=0;j<tmp_atoms.size();++j) all_atoms.push_back( tmp_atoms[j] );
-  }   
-  
-  // Now make sure we get all the atom positions 
-  ActionAtomistic::requestAtoms( all_atoms );
-  for(unsigned i=0;i<mybasemulticolvars.size();++i) addDependency(mybasemulticolvars[i]);
+  // Make all atom requests and setup dependencies
+  std::vector<AtomNumber> fake_atoms; 
   // Do all setup stuff in MultiColvarBase
-  setupMultiColvarBase();
+  setupMultiColvarBase( fake_atoms );
 }
 
 void MultiColvarFunction::buildSymmetryFunctionLists(){
   if( mybasemulticolvars.size()>2 ) error("Found too many multicolvars in DATA specification. You can use either 1 or 2");
-
-  // Make sure information is stored in the required multicolvars
-//  if( keywords.exists("WTOL") ){
-//      for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasemulticolvars[i]->buildDataStashes( true, wtolerance );
-//  } else {
-//      for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasemulticolvars[i]->buildDataStashes( false, 0.0 ); 
-//  }
 
   usespecies=true; ablocks.resize( 1 );
   for(unsigned i=0;i<mybasemulticolvars[0]->getFullNumberOfTasks();++i) addTaskToList( i );
@@ -112,7 +74,6 @@ void MultiColvarFunction::buildSymmetryFunctionLists(){
       ntotal += mybasemulticolvars[i]->getFullNumberOfTasks();
   }
   unsigned k=0, start=0;
-  // current_atoms.resize( 1 + ntotal ); 
   ablocks[0].resize( ntotal ); 
   for(unsigned i=0;i<mybasemulticolvars.size();++i){
       for(unsigned j=0;j<mybasemulticolvars[i]->getFullNumberOfTasks();++j){
@@ -120,7 +81,7 @@ void MultiColvarFunction::buildSymmetryFunctionLists(){
       }
       start += mybasemulticolvars[i]->getFullNumberOfTasks();
   }  
-  setupAtomLists();
+  mybasedata[0]->resizeTemporyMultiValues(2); setupAtomLists();
 }
 
 void MultiColvarFunction::buildSets(){
@@ -137,20 +98,13 @@ void MultiColvarFunction::buildSets(){
       for(unsigned j=0;j<nblock;++j) ablocks[i][j]=i*nblock+j;  
   }
   for(unsigned i=0;i<nblock;++i) addTaskToList( i );
-  setupAtomLists();
+  mybasedata[0]->resizeTemporyMultiValues( mybasemulticolvars.size() ); setupAtomLists();
 }
 
 void MultiColvarFunction::buildAtomListWithPairs( const bool& allow_intra_group ){
   if( !allow_intra_group && mybasemulticolvars.size()>2 ) error("only two input multicolvars allowed with this function"); 
-
-  // Make sure information is stored in the required multicolvars
-//  if( keywords.exists("WTOL") ){
-//      for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasemulticolvars[i]->buildDataStashes( true, wtolerance );
-//  } else {
-//      for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasemulticolvars[i]->buildDataStashes( false, 0.0 );
-//  }
   
-  usespecies=false; ablocks.resize(2); // current_atoms.resize( 2 );
+  usespecies=false; ablocks.resize(2); 
   if( !allow_intra_group && mybasemulticolvars.size()==2 ){
      nblock = mybasemulticolvars[0]->getFullNumberOfTasks();
      if( mybasemulticolvars[1]->getFullNumberOfTasks()>nblock ) nblock = mybasemulticolvars[1]->getFullNumberOfTasks();
@@ -168,7 +122,7 @@ void MultiColvarFunction::buildAtomListWithPairs( const bool& allow_intra_group 
          }
      }
   } else {
-     nblock = 0; for(unsigned i=0;i<mybasemulticolvars.size();++i) nblock += mybasemulticolvars[i]->getFullNumberOfTasks();
+     nblock = 0; for(unsigned i=0;i<mybasemulticolvars.size();++i) nblock += mybasemulticolvars[i]->getFullNumberOfTasks(); 
      ablocks[0].resize( nblock ); ablocks[1].resize( nblock ); resizeBookeepingArray( nblock, nblock );
      for(unsigned i=0;i<nblock;++i){ ablocks[0][i] = i; ablocks[1][i] = i; }
      for(unsigned i=1;i<nblock;++i){
@@ -179,98 +133,21 @@ void MultiColvarFunction::buildAtomListWithPairs( const bool& allow_intra_group 
         }
      }
   }
-  setupAtomLists(); 
+  mybasedata[0]->resizeTemporyMultiValues(2); setupAtomLists(); 
 }
 
-void MultiColvarFunction::calculate(){
-  if( checkNumericalDerivatives() ){
-     // Clear any derivatives in base colvar that were 
-     // accumulated from previous calculations
-     for(unsigned i=0;i<mybasemulticolvars.size();++i) mybasemulticolvars[i]->clearDerivatives(); 
-     // And recalculate
-     for(unsigned i=0;i<mybasemulticolvars.size();++i){
-        BridgedMultiColvarFunction* bb=dynamic_cast<BridgedMultiColvarFunction*>( mybasemulticolvars[i] );
-        if( bb ) (bb->getPntrToMultiColvar())->calculate();
-        else mybasemulticolvars[i]->calculate();
-     }
-     // Copy the box from the base multicolvar here
-     unsigned maxb=mybasemulticolvars.size() - 1;
-     BridgedMultiColvarFunction* bb=dynamic_cast<BridgedMultiColvarFunction*>( mybasemulticolvars[maxb] );
-     if( bb ) changeBox( (bb->getPntrToMultiColvar())->getBox() ); 
-     else changeBox( mybasemulticolvars[maxb]->getBox() );
-  }
-  setupLinkCells(); 
-  // And run all tasks
-  runAllTasks();
-}
-
-void MultiColvarFunction::calculateNumericalDerivatives( ActionWithValue* a ){
-  // Construct matrix to store numerical derivatives
-  unsigned pstart=0; 
-  for(unsigned i=0;i<mybasemulticolvars.size();++i){
-     BridgedMultiColvarFunction* bb=dynamic_cast<BridgedMultiColvarFunction*>( mybasemulticolvars[i] );
-     if( bb ){
-         BridgedMultiColvarFunction* bb2=dynamic_cast<BridgedMultiColvarFunction*>( bb->getPntrToMultiColvar() );
-         plumed_massert( !bb2, "double filtered multicolvars and NumericalDerivatives are not compatible" );
-         pstart+=3*(bb->getPntrToMultiColvar())->getNumberOfAtoms();
-     } else {
-        pstart+=3*mybasemulticolvars[i]->getNumberOfAtoms();
-     }
-  }
-  Matrix<double> numder_store( getNumberOfComponents(), pstart + 9 );
-
-  pstart=0; 
-  for(unsigned i=0;i<mybasemulticolvars.size();++i){
-     BridgedMultiColvarFunction* bb=dynamic_cast<BridgedMultiColvarFunction*>( mybasemulticolvars[i] );
-     if( bb ){
-        ( bb->getPntrToMultiColvar() )->calculateAtomicNumericalDerivatives( this, pstart );
-        for(unsigned k=0;k<getNumberOfComponents();++k){
-           Value* val=getPntrToComponent(k);
-           for(unsigned j=0;j<3*(bb->getPntrToMultiColvar())->getNumberOfAtoms();++j){
-              numder_store(k,pstart+j) = val->getDerivative(pstart + j);
-           }
-        }   
-        pstart += 3*(bb->getPntrToMultiColvar())->getNumberOfAtoms();
-     } else {
-        mybasemulticolvars[i]->calculateAtomicNumericalDerivatives( this, pstart );
-        for(unsigned k=0;k<getNumberOfComponents();++k){
-           Value* val=getPntrToComponent(k);
-           for(unsigned j=0;j<3*mybasemulticolvars[i]->getNumberOfAtoms();++j){
-              numder_store(k,pstart+j) = val->getDerivative(pstart + j);
-           }
-        }
-        pstart += 3*mybasemulticolvars[i]->getNumberOfAtoms(); 
-     }
-  }
-
-  // Note numerical derivatives only work for virial if mybasemulticolvars.size()==1
-  if( mybasemulticolvars.size()==1 ){
-      for(unsigned k=0;k<getNumberOfComponents();++k){
-         Value* val=getPntrToComponent(k);
-         for(unsigned j=0;j<9;++j) numder_store(k,pstart+j) = val->getDerivative(pstart + j);
-      }
-  }
-
-  // Now transfer to multicolvar
-  clearDerivatives();
-  for(unsigned j=0;j<getNumberOfComponents();++j){
-     Value* val=getPntrToComponent(j);
-     for(unsigned i=0;i<getNumberOfDerivatives();++i) val->addDerivative( i, numder_store(j,i) );
-  }
-}
-
-void MultiColvarFunction::updateActiveAtoms( AtomValuePack& myatoms ) const {
-  myatoms.updateDynamicList();
-}
-
-void MultiColvarFunction::getVectorDerivatives( const unsigned& ind, const bool& normed, MultiValue& myder ) const {
-  plumed_dbg_assert( ind<getFullNumberOfBaseTasks() ); unsigned mmc=colvar_label[ind];
+MultiValue& MultiColvarFunction::getVectorDerivatives( const unsigned& ind, const bool& normed ) const {
+  plumed_dbg_assert( ind<colvar_label.size() ); unsigned mmc=colvar_label[ind];
   plumed_dbg_assert( mybasedata[mmc]->storedValueIsActive( convertToLocalIndex(ind,mmc) ) );
-  if( myder.getNumberOfValues()!=mybasemulticolvars[mmc]->getNumberOfQuantities() || 
+  // Get a tempory multi value from the base class
+  MultiValue& myder=mybasedata[0]->getTemporyMultiValue();
+
+  if( myder.getNumberOfValues()!=mybasemulticolvars[mmc]->getNumberOfQuantities() ||
       myder.getNumberOfDerivatives()!=mybasemulticolvars[mmc]->getNumberOfDerivatives() ){
           myder.resize( mybasemulticolvars[mmc]->getNumberOfQuantities(), mybasemulticolvars[mmc]->getNumberOfDerivatives() );
   }
   mybasedata[mmc]->retrieveDerivatives( convertToLocalIndex(ind,mmc), normed, myder );
+  return myder;
 }
 
 void MultiColvarFunction::mergeVectorDerivatives( const unsigned& ival, const unsigned& start, const unsigned& end, 
@@ -284,10 +161,10 @@ void MultiColvarFunction::mergeVectorDerivatives( const unsigned& ival, const un
 
   // Get start of indices for this atom
   unsigned basen=0; for(unsigned i=0;i<mmc;++i) basen+=3*mybasemulticolvars[i]->getNumberOfAtoms();
-  // Now get the start of the virial
-  unsigned virbas = 3*getNumberOfAtoms();
 
   MultiValue& myvals=myatoms.getUnderlyingMultiValue();
+  // Now get the start of the virial
+  unsigned virbas = myvals.getNumberOfDerivatives()-9;
   for(unsigned j=0;j<myder.getNumberActive();++j){
      unsigned jder=myder.getActiveIndex(j);
      if( jder<3*mybasemulticolvars[mmc]->getNumberOfAtoms() ){
@@ -303,32 +180,6 @@ void MultiColvarFunction::mergeVectorDerivatives( const unsigned& ival, const un
      }
   }
 }
- 
-
-// void MultiColvarFunction::addStoredDerivative( const unsigned& jout, const unsigned& base_cv_no, const unsigned& base_index, const double& der ){
-//   plumed_dbg_assert( jout<getNumberOfQuantities() && base_cv_no<mybasemulticolvars.size() && base_index<mybasemulticolvars[base_cv_no]->getNumberOfDerivatives() );
-// 
-//   unsigned mbase = 3*mybasemulticolvars[base_cv_no]->getSizeOfAtomsWithDerivatives(), tbase = 3*getNumberOfAtoms();
-//   if( base_index>=mbase ){
-//       // Add virial element
-//       unsigned jindex = base_index - mbase + tbase;
-//       addElementDerivative( jout*getNumberOfDerivatives() + jindex, der ); 
-//   } else {
-//       // Add atomic element
-//       unsigned offset=0; for(unsigned i=0;i<base_cv_no;++i) offset += 3*mybasemulticolvars[i]->getNumberOfAtoms();
-//       unsigned jindex = offset + base_index; 
-//       plumed_dbg_assert( jindex<3*getNumberOfAtoms() );
-//       addElementDerivative( jout*getNumberOfDerivatives() + jindex, der );
-//       unsigned iatom = ( jindex / 3 );
-//       atoms_with_derivatives.activate( iatom );
-//   }
-// }
-
-// Vector MultiColvarFunction::calculateCentralAtomPosition(){
-//   Vector catom=getCentralAtom();
-//   atomsWithCatomDer.updateActiveMembers();
-//   return catom;
-// }
 
 }
 }
