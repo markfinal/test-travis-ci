@@ -3,7 +3,7 @@ ifneq ($(MAKECMDGOALS),clean)
   -include ../Makefile.conf
 endif
 
-.PHONY: all clean
+.PHONY: all clean coverage
 
 all:
 ifeq ($(make_doc),yes)
@@ -13,4 +13,8 @@ ifeq ($(make_doc),yes)
 endif
 
 clean:
-	rm -fr automatic html latex *~ links-to-user-manual.txt
+	rm -fr automatic html latex *~ links-to-user-manual.txt coverage
+
+coverage:
+	mkdir coverage
+	cd ../src && gcovr --gcov-executable=gcov-mp-6 -r . --html --html-details -o ../developer-doc/coverage/index.html
