@@ -59,6 +59,8 @@ matrix:
 ##    - env: CPPCHECK=yes CPPCHECK_VERSION=1.74
 ## Possible additional variables:
 #   VALGRIND=yes to make valgrind tests, only when log contains string [valgrind]
+before_install:
+  - pip install --user cpp-coveralls
 install:
 # setup environment to allow install on the home directory
   - export PATH="$HOME/opt/bin:$PATH"
@@ -108,6 +110,8 @@ install:
 script:
 # we enable crystallization and manyrestraints modules
   - CONFIG_FLAGS="$CONFIG_FLAGS --enable-modules=crystallization:manyrestraints:adjmat"
+# enable gcoverage
+  - CONFIG_FLAGS="$CONFIG_FLAGS --enable-gcov"
 # we enable fftw, which is off by default
   - CONFIG_FLAGS="$CONFIG_FLAGS --enable-fftw"
   - if test "$MAKEDOC" == yes ; then CONFIG_FLAGS="$CONFIG_FLAGS --enable-pdfdoc" ; fi
@@ -138,3 +142,4 @@ script:
   - if test "$CPPCHECK" == yes ; then make cppcheck ; fi
 after_success:
   - if test "$MAKEDOC" == yes ; then ./.travis/pushdoc ; fi 
+  - coveralls --gcov-options '\-lp'
