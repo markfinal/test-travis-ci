@@ -87,6 +87,9 @@ install:
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y graphviz            ; fi
 # install doxygen-latex
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen-latex ; fi
+# install lcov
+  - if test "$MAKEDOC" == yes ; then sudo apt-get install -y lcov ; fi
+  - lcov --version
 # then replace doxygen with the desided version
 # I use 1.8.10 instead of 1.8.11 since it looks like 1.8.11 have troubles with
 # non case sensitive files (it writes capitalized filenames)
