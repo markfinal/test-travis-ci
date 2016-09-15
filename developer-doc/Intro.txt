@@ -21,6 +21,8 @@ http://www.parashift.com/c++-faq-lite/
 
 \cond ENABLECOVERAGE
 
+\par Code Coverage
+
 This manual also contains a detailed analysis of which parts of the PLUMED code have been tested when compiling it.
 It can be accessed <a href="../coverage/index.html"> here </a>
 
