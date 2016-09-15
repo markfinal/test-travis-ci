@@ -16,5 +16,5 @@ clean:
 	rm -fr automatic html latex *~ links-to-user-manual.txt coverage coverage.info
 
 coverage:
-	lcov gcov-mp-6 -c -d ../src/ --output-file coverage.info
+	lcov -c -d ../src/ --output-file coverage.info
 	genhtml -o coverage -t "plumed test coverage" coverage.info
