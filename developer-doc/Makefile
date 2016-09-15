@@ -17,4 +17,4 @@ clean:
 
 coverage:
 	mkdir coverage
-	cd ../src && gcovr --gcov-executable=gcov-mp-6 -r . --html --html-details -o ../developer-doc/coverage/index.html
+	cd ../src && gcovr -r . --html --html-details -o ../developer-doc/coverage/index.html
