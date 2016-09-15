@@ -6,4 +6,8 @@ set -x
 echo "installing gcovr"
 wget https://github.com/gcovr/gcovr/archive/3.3.tar.gz
 tar xzf 3.3.tar.gz
+ls -l $PWD/gcovr-3.3/scripts
+chmod +x $PWD/gcovr-3.3/scripts/gcovr
+ls -l $PWD/gcovr-3.3/scripts
 ln -s $PWD/gcovr-3.3/scripts/gcovr $HOME/opt/bin
+ls -l $HOME/opt/bin
