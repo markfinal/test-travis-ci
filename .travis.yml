@@ -130,6 +130,7 @@ script:
   - if test "$PLUMED_CXX" ; then make install prefix="$HOME/opt" ; fi
 
 # build using macports
+  - if test -n "$PLUMED_MACPORTS" ; then export COLUMNS=80 ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port install flex +universal ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port install $PLUMED_MACPORTS ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port log plumed ; fi
