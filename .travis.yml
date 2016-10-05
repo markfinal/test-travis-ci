@@ -95,7 +95,7 @@ install:
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen-latex ; fi
 # install lcov
   - if test "$TRAVIS_OS_NAME" == "linux" ; then sudo apt-get install -y lcov ; fi
-  - if test "$TRAVIS_OS_NAME" == "linux" ; then gem install lcoveralls ; fi
+  - if test "$TRAVIS_OS_NAME" == "linux" ; then gem install coveralls-lcov ; fi
 # then replace doxygen with the desided version
 # I use 1.8.10 instead of 1.8.11 since it looks like 1.8.11 have troubles with
 # non case sensitive files (it writes capitalized filenames)
@@ -158,4 +158,4 @@ script:
   - if test "$CPPCHECK" == yes ; then make codecheck ; fi
 after_success:
   - if test "$MAKEDOC" == yes ; then ./.travis/pushdoc ; fi 
-  - if test "$TRAVIS_OS_NAME" == "linux" ; then lcoveralls developer-doc/coverage.info ; fi
+  - if test "$TRAVIS_OS_NAME" == "linux" ; then coveralls-lcov developer-doc/coverage.info ; fi
