@@ -94,7 +94,7 @@ install:
 # install doxygen-latex
   - if test "$MAKEDOC" == yes ; then sudo apt-get install -y doxygen-latex ; fi
 # install lcov
-  - if test "$TRAVIS_OS_NAME" == "linux" ; then sudo apt-get install -y lcov rubygem ; fi
+  - if test "$TRAVIS_OS_NAME" == "linux" ; then sudo apt-get install -y lcov ; fi
   - if test "$TRAVIS_OS_NAME" == "linux" ; then gem install lcoveralls ; fi
 # then replace doxygen with the desided version
 # I use 1.8.10 instead of 1.8.11 since it looks like 1.8.11 have troubles with
