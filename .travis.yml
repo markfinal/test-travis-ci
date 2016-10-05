@@ -124,7 +124,7 @@ script:
 # we enable fftw, which is off by default
   - CONFIG_FLAGS="$CONFIG_FLAGS --enable-fftw"
   - if test "$MAKEDOC" == yes ; then CONFIG_FLAGS="$CONFIG_FLAGS --enable-pdfdoc" ; fi
-  - if test "$MAKEDOC" == yes ; then CONFIG_FLAGS="$CONFIG_FLAGS --enable-gcov" ; fi
+  - if test "$TRAVIS_OS_NAME" == "linux" ; then CONFIG_FLAGS="$CONFIG_FLAGS --enable-gcov" ; fi
 
 # BUILD:
 # this is done only if PLUMED_CXX is defined
@@ -144,6 +144,7 @@ script:
   - if test "$PLUMED_CXX" || test -n "$PLUMED_MACPORTS" ; then make -C regtest $OPT ; fi
   - if test "$MAKEDOC" == yes ; then make -C regtest copytodoc ; fi
   - if test "$MAKEDOC" == yes ; then make -C developer-doc coverage ; fi
+  - if test "$TRAVIS_OS_NAME" == "linux" ; then make -C developer-doc coverage ; fi
   - if test "$MAKEDOC" == yes ; then make doc >/dev/null ; fi
   - if test "$PLUMED_CXX" || test -n "$PLUMED_MACPORTS" ; then make -C regtest checkfail ; fi
 
