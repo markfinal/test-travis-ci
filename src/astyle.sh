@@ -8,8 +8,12 @@ test -z "$DIRS" && DIRS=*
 for dir in $DIRS
 do
 test -d "$dir" || continue
-cd $dir
 
+test "$dir" = lapack && continue
+test "$dir" = blas && continue
+test "$dir" = molfile && continue
+
+cd $dir
 
 
 for file in *.c *.cpp *.h *.inc.in
