@@ -252,6 +252,7 @@ if test $basic_warnings == true
 then
   PLUMED_CHECK_CXXFLAG([-Wall])
   PLUMED_CHECK_CXXFLAG([-pedantic])
+  PLUMED_CHECK_CXXFLAG([-std=c++11])
 fi
 
 if test $debug == true
