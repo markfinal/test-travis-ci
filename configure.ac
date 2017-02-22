@@ -252,7 +252,6 @@ if test $basic_warnings == true
 then
   PLUMED_CHECK_CXXFLAG([-Wall])
   PLUMED_CHECK_CXXFLAG([-pedantic])
-  PLUMED_CHECK_CXXFLAG([-ansi])
 fi
 
 if test $debug == true
@@ -281,12 +280,6 @@ then
   PLUMED_CHECK_CXXFLAG([-Wvariadic-macros])
   PLUMED_CHECK_CXXFLAG([-Wold-style-cast])
 fi
-
-AC_MSG_CHECKING([whether $CXX supports explicit])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([ class A{explicit A(){}};])],
-  [AC_MSG_RESULT([yes])],
-  [AC_MSG_RESULT([no]) ;
-   AC_DEFINE([explicit],[])])
 
 AC_SUBST(disable_dependency_tracking)
 
