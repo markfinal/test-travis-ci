@@ -24,7 +24,7 @@
 #include "AdjacencyMatrixBase.h"
 #include "core/ActionRegister.h"
 
-//+PLUMEDOC MATRIXF CLUSTER_WITHSURFACE 
+//+PLUMEDOC MATRIXF CLUSTER_WITHSURFACE
 /*
 Find the various connected components in an adjacency matrix and then output average
 properties of the atoms in those connected components.
@@ -64,45 +64,45 @@ public:
 ///
   unsigned getNumberOfQuantities() const ;
 /// Do the calculation
-  void performClustering(){};
+  void performClustering() {};
 ///
-  double  getCutoffForConnection() const ;  
+  double  getCutoffForConnection() const ;
 ///
   Vector getPositionOfAtomForLinkCells( const unsigned& taskIndex ) const ;
 };
 
 PLUMED_REGISTER_ACTION(ClusterWithSurface,"CLUSTER_WITHSURFACE")
 
-void ClusterWithSurface::registerKeywords( Keywords& keys ){
+void ClusterWithSurface::registerKeywords( Keywords& keys ) {
   ClusteringBase::registerKeywords( keys );
   keys.remove("MATRIX");
   keys.add("compulsory","CLUSTERS","the label of the action that does the clustering");
   keys.add("compulsory","RCUT_SURF","you also have the option to find the atoms on the surface of the cluster.  An atom must be within this distance of one of the atoms "
-                                  "of the cluster in order to be considered a surface atom");
+           "of the cluster in order to be considered a surface atom");
 }
 
 ClusterWithSurface::ClusterWithSurface(const ActionOptions&ao):
-Action(ao),
-ClusteringBase(ao)
+  Action(ao),
+  ClusteringBase(ao)
 {
-   std::vector<AtomNumber> fake_atoms;
-   if( !parseMultiColvarAtomList("CLUSTERS",-1,fake_atoms ) ) error("unable to find CLUSTERS input");
-   if( mybasemulticolvars.size()!=1 ) error("should be exactly one multicolvar input");
+  std::vector<AtomNumber> fake_atoms;
+  if( !parseMultiColvarAtomList("CLUSTERS",-1,fake_atoms ) ) error("unable to find CLUSTERS input");
+  if( mybasemulticolvars.size()!=1 ) error("should be exactly one multicolvar input");
 
-   // Retrieve the adjacency matrix of interest
-   atom_lab.resize(0); myclusters = dynamic_cast<ClusteringBase*>( mybasemulticolvars[0] ); 
-   if( !myclusters ) error( mybasemulticolvars[0]->getLabel() + " does not calculate clusters");
+  // Retrieve the adjacency matrix of interest
+  atom_lab.resize(0); myclusters = dynamic_cast<ClusteringBase*>( mybasemulticolvars[0] );
+  if( !myclusters ) error( mybasemulticolvars[0]->getLabel() + " does not calculate clusters");
 
-   // Setup switching function for surface atoms
-   double rcut_surf; parse("RCUT_SURF",rcut_surf);
-   if( rcut_surf>0 ) log.printf("  counting surface atoms that are within %f of the cluster atoms \n",rcut_surf);
-   rcut_surf2=rcut_surf*rcut_surf;
+  // Setup switching function for surface atoms
+  double rcut_surf; parse("RCUT_SURF",rcut_surf);
+  if( rcut_surf>0 ) log.printf("  counting surface atoms that are within %f of the cluster atoms \n",rcut_surf);
+  rcut_surf2=rcut_surf*rcut_surf;
 
-   // And now finish the setup of everything in the base
-   setupMultiColvarBase( fake_atoms ); 
+  // And now finish the setup of everything in the base
+  setupMultiColvarBase( fake_atoms );
 }
 
-unsigned ClusterWithSurface::getNumberOfDerivatives(){
+unsigned ClusterWithSurface::getNumberOfDerivatives() {
   return myclusters->getNumberOfDerivatives();
 }
 
@@ -137,26 +137,26 @@ void ClusterWithSurface::retrieveAtomsInCluster( const unsigned& clust, std::vec
 
   // Prevent double counting
   std::vector<bool> incluster( getNumberOfNodes(), false );
-  for(unsigned i=0;i<tmpat.size();++i) incluster[tmpat[i]]=true;
+  for(unsigned i=0; i<tmpat.size(); ++i) incluster[tmpat[i]]=true;
 
   // Find the atoms in the the clusters
-  std::vector<bool> surface_atom( getNumberOfNodes(), false ); 
-  for(unsigned i=0;i<tmpat.size();++i){
-      for(unsigned j=0;j<getNumberOfNodes();++j){
-         if( incluster[j] ) continue;
-         double dist2=getSeparation( getPosition(tmpat[i]), getPosition(j) ).modulo2();
-         if( dist2<rcut_surf2 ){ surface_atom[j]=true; }
-      }
+  std::vector<bool> surface_atom( getNumberOfNodes(), false );
+  for(unsigned i=0; i<tmpat.size(); ++i) {
+    for(unsigned j=0; j<getNumberOfNodes(); ++j) {
+      if( incluster[j] ) continue;
+      double dist2=getSeparation( getPosition(tmpat[i]), getPosition(j) ).modulo2();
+      if( dist2<rcut_surf2 ) { surface_atom[j]=true; }
+    }
   }
-  unsigned nsurf_at=0; 
-  for(unsigned j=0;j<getNumberOfNodes();++j){
-     if( surface_atom[j] ) nsurf_at++; 
+  unsigned nsurf_at=0;
+  for(unsigned j=0; j<getNumberOfNodes(); ++j) {
+    if( surface_atom[j] ) nsurf_at++;
   }
   myatoms.resize( nsurf_at + tmpat.size() );
-  for(unsigned i=0;i<tmpat.size();++i) myatoms[i]=tmpat[i];
+  for(unsigned i=0; i<tmpat.size(); ++i) myatoms[i]=tmpat[i];
   unsigned nn=tmpat.size();
-  for(unsigned j=0;j<getNumberOfNodes();++j){
-      if( surface_atom[j] ){ myatoms[nn]=j; nn++; }
+  for(unsigned j=0; j<getNumberOfNodes(); ++j) {
+    if( surface_atom[j] ) { myatoms[nn]=j; nn++; }
   }
   plumed_assert( nn==myatoms.size() );
 }

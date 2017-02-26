@@ -24,7 +24,7 @@
 
 //+PLUMEDOC COLVAR GPROPERTYMAP
 /*
-Property maps but with a more flexible framework for the distance metric being used. 
+Property maps but with a more flexible framework for the distance metric being used.
 
 This colvar calculates a property map using the formalism developed by Spiwork \cite Spiwok:2011ce.
 In essence if you have the value of some property, \f$X_i\f$, that it takes at a set of high-dimensional
@@ -37,7 +37,7 @@ X=\frac{\sum_i X_i*\exp(-\lambda D_i(x))}{\sum_i  \exp(-\lambda D_i(x))}
 
 Within PLUMED there are multiple ways to define the distance from a high-dimensional configuration, \f$D_i\f$.  You could calculate
 the RMSD distance or you could calculate the ammount by which a set of collective variables change.  As such this implementation
-of the propertymap allows one to use all the different distance metric that are discussed in \ref dists. This is as opposed to 
+of the propertymap allows one to use all the different distance metric that are discussed in \ref dists. This is as opposed to
 the alternative implementation \ref PROPERTYMAP which is a bit faster but which only allows one to use the RMSD distance.
 
 \par Examples
@@ -46,7 +46,7 @@ the alternative implementation \ref PROPERTYMAP which is a bit faster but which 
 //+ENDPLUMEDOC
 
 namespace PLMD {
-namespace mapping{
+namespace mapping {
 
 class PropertyMap : public PathBase {
 public:
@@ -56,24 +56,24 @@ public:
 
 PLUMED_REGISTER_ACTION(PropertyMap,"GPROPERTYMAP")
 
-void PropertyMap::registerKeywords( Keywords& keys ){
+void PropertyMap::registerKeywords( Keywords& keys ) {
   PathBase::registerKeywords( keys );
   ActionWithValue::useCustomisableComponents( keys );
   keys.addFlag("NOMAPPING",false,"do not calculate the position on the manifold");
 }
 
 PropertyMap::PropertyMap(const ActionOptions& ao):
-Action(ao),
-PathBase(ao)
+  Action(ao),
+  PathBase(ao)
 {
   bool nos; parseFlag("NOMAPPING",nos);
 
   std::string empty;
-  if(!nos){
-     for(unsigned i=0;i<getNumberOfProperties();++i){
-        empty="LABEL="+getPropertyName(i);
-        addVessel( "SPATH", empty, 0 );    
-     }
+  if(!nos) {
+    for(unsigned i=0; i<getNumberOfProperties(); ++i) {
+      empty="LABEL="+getPropertyName(i);
+      addVessel( "SPATH", empty, 0 );
+    }
   }
   readVesselKeywords();
   checkRead();

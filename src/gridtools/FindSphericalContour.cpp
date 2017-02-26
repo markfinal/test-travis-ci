@@ -49,7 +49,7 @@ public:
 
 PLUMED_REGISTER_ACTION(FindSphericalContour,"FIND_SPHERICAL_CONTOUR")
 
-void FindSphericalContour::registerKeywords( Keywords& keys ){
+void FindSphericalContour::registerKeywords( Keywords& keys ) {
   ContourFindingBase::registerKeywords( keys );
   keys.add("compulsory","NPOINTS","the number of points for which we are looking for the contour");
   keys.add("compulsory","INNER_RADIUS","the minimum radius on which to look for the contour");
@@ -59,8 +59,8 @@ void FindSphericalContour::registerKeywords( Keywords& keys ){
 }
 
 FindSphericalContour::FindSphericalContour(const ActionOptions&ao):
-Action(ao),
-ContourFindingBase(ao)
+  Action(ao),
+  ContourFindingBase(ao)
 {
   if( ingrid->getDimension()!=3 ) error("input grid must be three dimensional");
 
@@ -76,9 +76,9 @@ ContourFindingBase(ao)
 
   checkRead();
   // Create a task list
-  for(unsigned i=0;i<npoints;++i) addTaskToList( i );
+  for(unsigned i=0; i<npoints; ++i) addTaskToList( i );
   deactivateAllTasks();
-  for(unsigned i=0;i<getFullNumberOfTasks();++i) taskFlags[i]=1;
+  for(unsigned i=0; i<getFullNumberOfTasks(); ++i) taskFlags[i]=1;
   lockContributors();
 }
 
@@ -91,29 +91,29 @@ void FindSphericalContour::compute( const unsigned& current, MultiValue& myvals 
   contour_point[0] = r*cos(phi);
   contour_point[2] = r*sin(phi);
 
-  // normalize direction vector 
+  // normalize direction vector
   double norm=0;
-  for(unsigned j=0;j<3;++j) norm+=contour_point[j]*contour_point[j];
+  for(unsigned j=0; j<3; ++j) norm+=contour_point[j]*contour_point[j];
   norm = sqrt( norm );
-  for(unsigned j=0;j<3;++j) direction[j] = contour_point[j] / norm;
- 
+  for(unsigned j=0; j<3; ++j) direction[j] = contour_point[j] / norm;
+
   // Now set up direction as vector from inner sphere to outer sphere
-  for(unsigned j=0;j<3;++j){
-     contour_point[j] = min*direction[j];
-     direction[j] = (max-min)*direction[j] / static_cast<double>(nbins);
+  for(unsigned j=0; j<3; ++j) {
+    contour_point[j] = min*direction[j];
+    direction[j] = (max-min)*direction[j] / static_cast<double>(nbins);
   }
   bool found=false;
-  for(unsigned k=0;k<nbins;++k){
-     for(unsigned j=0;j<3;++j) tmp[j] = contour_point[j] + direction[j];
-     double val1 = getDifferenceFromContour( contour_point, der );
-     double val2 = getDifferenceFromContour( tmp, der ); 
-     if( val1*val2<0 ){
-         findContour( direction, contour_point );
-         for(unsigned j=0;j<3;++j) myvals.setValue( 1+j, contour_point[j] );
-         found=true; break;
-     }   
-     for(unsigned j=0;j<3;++j) contour_point[j] = tmp[j]; 
-  } 
+  for(unsigned k=0; k<nbins; ++k) {
+    for(unsigned j=0; j<3; ++j) tmp[j] = contour_point[j] + direction[j];
+    double val1 = getDifferenceFromContour( contour_point, der );
+    double val2 = getDifferenceFromContour( tmp, der );
+    if( val1*val2<0 ) {
+      findContour( direction, contour_point );
+      for(unsigned j=0; j<3; ++j) myvals.setValue( 1+j, contour_point[j] );
+      found=true; break;
+    }
+    for(unsigned j=0; j<3; ++j) contour_point[j] = tmp[j];
+  }
   if( !found ) error("range does not bracket the dividing surface");
 }
 
