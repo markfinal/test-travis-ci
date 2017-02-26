@@ -25,7 +25,7 @@
 #include "Mapping.h"
 
 namespace PLMD {
-namespace mapping{
+namespace mapping {
 
 class PathBase : public Mapping {
 private:

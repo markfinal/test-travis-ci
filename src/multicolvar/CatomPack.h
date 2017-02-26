@@ -44,16 +44,16 @@ public:
 };
 
 inline
-void CatomPack::setIndex( const unsigned& jind, const unsigned& ind ){
+void CatomPack::setIndex( const unsigned& jind, const unsigned& ind ) {
   plumed_dbg_assert( jind<indices.size() );
   indices[jind]=ind;
 }
 
 inline
-void CatomPack::setDerivative( const unsigned& jind , const Tensor& der ){
+void CatomPack::setDerivative( const unsigned& jind , const Tensor& der ) {
   plumed_dbg_assert( jind<indices.size() );
   derivs[jind]=der;
-} 
+}
 
 inline
 unsigned CatomPack::getNumberOfAtomsWithDerivatives() const {
@@ -75,4 +75,4 @@ double CatomPack::getDerivative( const unsigned& iatom, const unsigned& jcomp, c
 }
 }
 
-#endif 
+#endif

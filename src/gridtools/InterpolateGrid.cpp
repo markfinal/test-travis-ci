@@ -42,42 +42,42 @@ public:
   explicit InterpolateGrid(const ActionOptions&ao);
   unsigned getNumberOfQuantities() const ;
   void compute( const unsigned& current, MultiValue& myvals ) const ;
-  bool isPeriodic(){ return false; }
+  bool isPeriodic() { return false; }
 };
 
 PLUMED_REGISTER_ACTION(InterpolateGrid,"INTERPOLATE_GRID")
 
-void InterpolateGrid::registerKeywords( Keywords& keys ){
+void InterpolateGrid::registerKeywords( Keywords& keys ) {
   ActionWithInputGrid::registerKeywords( keys );
   keys.add("optional","GRID_BIN","the number of bins for the grid");
   keys.add("optional","GRID_SPACING","the approximate grid spacing (to be used as an alternative or together with GRID_BIN)");
-  keys.remove("KERNEL"); keys.remove("BANDWIDTH"); 
+  keys.remove("KERNEL"); keys.remove("BANDWIDTH");
 }
 
 InterpolateGrid::InterpolateGrid(const ActionOptions&ao):
-Action(ao),
-ActionWithInputGrid(ao)
+  Action(ao),
+  ActionWithInputGrid(ao)
 {
   plumed_assert( ingrid->getNumberOfComponents()==1 );
-  if( ingrid->noDerivatives() ) error("cannot interpolate a grid that does not have derivatives"); 
+  if( ingrid->noDerivatives() ) error("cannot interpolate a grid that does not have derivatives");
   // Create the input from the old string
   createGrid( "grid", "COMPONENTS=" + getLabel() + " " + ingrid->getInputString()  );
 
-  std::vector<unsigned> nbin; parseVector("GRID_BIN",nbin); 
+  std::vector<unsigned> nbin; parseVector("GRID_BIN",nbin);
   std::vector<double> gspacing; parseVector("GRID_SPACING",gspacing);
-  if( nbin.size()!=ingrid->getDimension() && gspacing.size()!=ingrid->getDimension() ){
-      error("GRID_BIN or GRID_SPACING must be set");
-  } 
+  if( nbin.size()!=ingrid->getDimension() && gspacing.size()!=ingrid->getDimension() ) {
+    error("GRID_BIN or GRID_SPACING must be set");
+  }
 
   // Need this for creation of tasks
-  mygrid->setBounds( ingrid->getMin(), ingrid->getMax(), nbin, gspacing ); 
+  mygrid->setBounds( ingrid->getMin(), ingrid->getMax(), nbin, gspacing );
   setAveragingAction( mygrid, true );
 
   // Now create task list
-  for(unsigned i=0;i<mygrid->getNumberOfPoints();++i) addTaskToList(i);
+  for(unsigned i=0; i<mygrid->getNumberOfPoints(); ++i) addTaskToList(i);
   // And activate all tasks
-  deactivateAllTasks(); 
-  for(unsigned i=0;i<mygrid->getNumberOfPoints();++i) taskFlags[i]=1;
+  deactivateAllTasks();
+  for(unsigned i=0; i<mygrid->getNumberOfPoints(); ++i) taskFlags[i]=1;
   lockContributors();
 }
 
@@ -88,8 +88,8 @@ unsigned InterpolateGrid::getNumberOfQuantities() const {
 void InterpolateGrid::compute( const unsigned& current, MultiValue& myvals ) const {
   std::vector<double> pos( mygrid->getDimension() ); mygrid->getGridPointCoordinates( current, pos );
   std::vector<double> der( mygrid->getDimension() ); double val = getFunctionValueAndDerivatives( pos, der );
-  myvals.setValue( 0, 1.0 ); myvals.setValue(1, val ); 
-  for(unsigned i=0;i<mygrid->getDimension();++i) myvals.setValue( 2+i, der[i] ); 
+  myvals.setValue( 0, 1.0 ); myvals.setValue(1, val );
+  for(unsigned i=0; i<mygrid->getDimension(); ++i) myvals.setValue( 2+i, der[i] );
 }
 
 }

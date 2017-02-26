@@ -23,7 +23,7 @@
 #include "VesselRegister.h"
 
 namespace PLMD {
-namespace vesselbase{
+namespace vesselbase {
 
 class Highest : public OrderingVessel {
 public:
@@ -36,25 +36,25 @@ public:
 
 PLUMED_REGISTER_VESSEL(Highest,"HIGHEST")
 
-void Highest::registerKeywords( Keywords& keys ){
+void Highest::registerKeywords( Keywords& keys ) {
   OrderingVessel::registerKeywords( keys );
 }
 
-void Highest::reserveKeyword( Keywords& keys ){
+void Highest::reserveKeyword( Keywords& keys ) {
   keys.reserve("vessel","HIGHEST","this flag allows you to recover the highest of these variables.");
   keys.addOutputComponent("highest","HIGHEST","the lowest of the quantitities calculated by this action");
 }
 
 Highest::Highest( const VesselOptions& da ) :
-OrderingVessel(da)
+  OrderingVessel(da)
 {
 }
 
-std::string Highest::value_descriptor(){
+std::string Highest::value_descriptor() {
   return "the highest of the individual colvar values";
 }
 
-bool Highest::compare( const double& val1, const double& val2 ){
+bool Highest::compare( const double& val1, const double& val2 ) {
   return val1>val2;
 }
 

@@ -30,11 +30,11 @@
 using namespace std;
 
 namespace PLMD {
-namespace function{
+namespace function {
 
 //+PLUMEDOC DCOLVAR TARGET
 /*
-This function measures the pythagorean distance from a particular structure measured in the space defined by some 
+This function measures the pythagorean distance from a particular structure measured in the space defined by some
 set of collective variables.
 
 \par Examples
@@ -57,28 +57,28 @@ public:
 
 PLUMED_REGISTER_ACTION(Target,"TARGET")
 
-void Target::registerKeywords(Keywords& keys){
-  Function::registerKeywords(keys); 
+void Target::registerKeywords(Keywords& keys) {
+  Function::registerKeywords(keys);
   keys.add("compulsory","TYPE","EUCLIDEAN","the manner in which the distance should be calculated");
   keys.add("compulsory","REFERENCE","a file in pdb format containing the reference structure. In the PDB file the atomic "
-                                    "coordinates and box lengths should be in Angstroms unless you are working with natural units. "
-                                    "If you are working with natural units then the coordinates should be in your natural length unit. "
-                                    "The charges and masses of the atoms (if required) should be inserted in the beta and occupancy "
-                                    "columns respectively. For more details on the PDB file format visit http://www.wwpdb.org/docs.html"); 
+           "coordinates and box lengths should be in Angstroms unless you are working with natural units. "
+           "If you are working with natural units then the coordinates should be in your natural length unit. "
+           "The charges and masses of the atoms (if required) should be inserted in the beta and occupancy "
+           "columns respectively. For more details on the PDB file format visit http://www.wwpdb.org/docs.html");
 }
 
 Target::Target(const ActionOptions&ao):
-Action(ao),
-Function(ao),
-myvals(1,0),
-mypack(0,0,myvals)
+  Action(ao),
+  Function(ao),
+  myvals(1,0),
+  mypack(0,0,myvals)
 {
   std::string type; parse("TYPE",type);
-  std::string reference; parse("REFERENCE",reference); 
-  checkRead(); PDB pdb; 
+  std::string reference; parse("REFERENCE",reference);
+  checkRead(); PDB pdb;
   if( !pdb.read(reference,plumed.getAtoms().usingNaturalUnits(),0.1/plumed.getAtoms().getUnits().getLength()) )
-      error("missing input file " + reference);
-  
+    error("missing input file " + reference);
+
   // Use the base ActionWithArguments to expand things like a1.*
   expandArgKeywordInPDB( pdb );
 
@@ -101,14 +101,14 @@ mypack(0,0,myvals)
   // Create the value
   addValueWithDerivatives(); setNotPeriodic();
 }
- 
-Target::~Target(){
+
+Target::~Target() {
   delete target;
 }
 
-void Target::calculate(){
+void Target::calculate() {
   mypack.clear(); double r=target->calculate( getArguments(), mypack, false ); setValue(r);
-  for(unsigned i=0;i<getNumberOfArguments();i++) setDerivative( i, mypack.getArgumentDerivative(i) );
+  for(unsigned i=0; i<getNumberOfArguments(); i++) setDerivative( i, mypack.getArgumentDerivative(i) );
 }
 
 }

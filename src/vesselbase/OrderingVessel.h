@@ -30,7 +30,7 @@
 #include "core/Value.h"
 
 namespace PLMD {
-namespace vesselbase{
+namespace vesselbase {
 
 class OrderingVessel : public ValueVessel {
 private:

@@ -26,7 +26,7 @@
 #include "Tensor.h"
 #include <vector>
 
-namespace PLMD{
+namespace PLMD {
 
 class Log;
 

@@ -23,7 +23,7 @@
 #include "VesselRegister.h"
 
 namespace PLMD {
-namespace vesselbase{
+namespace vesselbase {
 
 class Lowest : public OrderingVessel {
 public:
@@ -36,25 +36,25 @@ public:
 
 PLUMED_REGISTER_VESSEL(Lowest,"LOWEST")
 
-void Lowest::registerKeywords( Keywords& keys ){
+void Lowest::registerKeywords( Keywords& keys ) {
   OrderingVessel::registerKeywords( keys );
 }
 
-void Lowest::reserveKeyword( Keywords& keys ){
+void Lowest::reserveKeyword( Keywords& keys ) {
   keys.reserve("vessel","LOWEST","this flag allows you to recover the lowest of these variables.");
   keys.addOutputComponent("lowest","LOWEST","the lowest of the quantitities calculated by this action");
 }
 
 Lowest::Lowest( const VesselOptions& da ) :
-OrderingVessel(da)
+  OrderingVessel(da)
 {
 }
 
-std::string Lowest::value_descriptor(){
+std::string Lowest::value_descriptor() {
   return "the lowest of the individual colvar values";
 }
 
-bool Lowest::compare( const double& val1, const double& val2 ){
+bool Lowest::compare( const double& val1, const double& val2 ) {
   return val1<val2;
 }
 

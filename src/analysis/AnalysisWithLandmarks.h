@@ -33,12 +33,12 @@ namespace analysis {
 class LandmarkSelectionBase;
 
 class AnalysisWithLandmarks : public Analysis {
-friend class LandmarkSelectionBase;
-friend class CopyAllFrames;
+  friend class LandmarkSelectionBase;
+  friend class CopyAllFrames;
 private:
 /// This object selects landmarks from the data
   LandmarkSelectionBase* landmarkSelector;
-/// A pointer to the data we are analyzing             
+/// A pointer to the data we are analyzing
   MultiReferenceBase* data_to_analyze;
 protected:
 /// Set the data that needs to be analyzed
