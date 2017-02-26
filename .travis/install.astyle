@@ -1,0 +1,33 @@
+#! /bin/bash
+
+set -e
+set -x
+
+TMP=$(mktemp -d)
+
+cd $TMP
+
+if [ -n "$1" ] ; then
+  echo "installing astyle $version"
+  version=$1
+else
+  error "please specify a version"
+  exit 1
+fi
+
+wget https://sourceforge.net/projects/astyle/files/astyle/astyle%20$version/astyle_${version}_linux.tar.gz
+
+tar xzf astyle_${version}_linux.tar.gz
+
+cd astyle/build/gcc
+
+sed 's/^INSTALL=install.*$/INSTALL=install/' Makefile > Makefile.new
+
+mv Makefile.new Makefile
+
+make -j 4 
+make prefix=$HOME/opt install 
+
+astyle --version
+
+
