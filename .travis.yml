@@ -43,6 +43,14 @@ matrix:
   - os: osx
     osx_image: xcode7.3
     env: PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3
+# osx 10.12 serial
+  - os: osx
+    osx_image: xcode8.2
+    env: PLUMED_CC=clang PLUMED_CXX=clang++ PLUMED_CXXFLAGS=-O3
+# osx 10.12 parallel
+  - os: osx
+    osx_image: xcode8.2
+    env: PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3
 # osx serial macports
   - os: osx
     osx_image: xcode7.3
