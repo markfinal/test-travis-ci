@@ -98,7 +98,7 @@ script:
 
 # build using macports
 # this is required for some misterious reason:
-  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install flex +universal ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install flex ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install $PLUMED_MACPORTS ; fi
 
 # TEST:
