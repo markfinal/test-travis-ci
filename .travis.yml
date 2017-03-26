@@ -74,7 +74,7 @@ install:
   - if test -n "$PLUMED_MACPORTS" ; then wget https://distfiles.macports.org/MacPorts/$MACPORTS_PKG ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo installer -pkg $MACPORTS_PKG -target / ; fi
   - if test -n "$PLUMED_MACPORTS" ; then export PATH=/opt/local/bin:$PATH ; fi
-  - if test -n "$PLUMED_MACPORTS" ; then sudo port -v selfupdate ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N -v selfupdate ; fi
   - if test -n "$PLUMED_MACPORTS" ; then make macports ; fi
   - if test -n "$PLUMED_MACPORTS" ; then ./.travis/config.macports.sh ; fi
 
@@ -98,8 +98,8 @@ script:
 
 # build using macports
 # this is required for some misterious reason:
-  - if test -n "$PLUMED_MACPORTS" -a "$OSX_VERSION" == 10.11 ; then sudo port install flex +universal ; fi
-  - if test -n "$PLUMED_MACPORTS" ; then sudo port install $PLUMED_MACPORTS ; fi
+  - if test -n "$PLUMED_MACPORTS" -a "$OSX_VERSION" == 10.11 ; then sudo port -N install flex +universal ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install $PLUMED_MACPORTS ; fi
 
 # TEST:
   - if test "$VALGRIND" == yes ; then OPT=valgrind ; else OPT="" ; fi
