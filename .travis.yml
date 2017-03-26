@@ -4,7 +4,7 @@ matrix:
 # osx serial macports
   - os: osx
     osx_image: xcode7.3
-    env: PLUMED_MACPORTS="plumed"
+    env: PLUMED_MACPORTS="plumed -matheval"
 # osx serial macports debug variant
   - os: osx
     osx_image: xcode7.3
@@ -97,8 +97,6 @@ script:
   - if test "$PLUMED_CXX" ; then make install prefix="$HOME/opt" ; fi
 
 # build using macports
-# this is required for some misterious reason:
-  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install flex ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install $PLUMED_MACPORTS ; fi
 
 # TEST:
