@@ -1,57 +1,6 @@
 language: cpp
 matrix:
   include:
-# list of configurations to be attempted:
-# MPI + doc
-# this is the "master" one, it is going to update the manual if log contains [makedoc]
-# Variable PLUMED_ALL_TESTS=yes ensures that all the regtests can be run.
-# If some of them is not enabled, the whole suite will fail.
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: PLUMED_CC=mpicc PLUMED_CXX=mpic++ MAKEDOC=yes PLUMED_ALL_TESTS=yes
-# the following are with debug flags
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: PLUMED_CC=gcc   PLUMED_CXX=g++    CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx"
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: PLUMED_CC=mpicc PLUMED_CXX=mpic++ CONFIG_FLAGS="--enable-debug --enable-debug-glibcxx"
-# cppcheck - takes a lot of time to compile the code, so I place it closer
-# to the beginning of the list
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: CPPCHECK=yes CPPCHECK_VERSION=1.77
-# then check with different optimization flags
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: PLUMED_CC=gcc   PLUMED_CXX=g++     PLUMED_CXXFLAGS=-O3 LAPACK=yes
-# then I try serial compiler on UBUNTU precise
-  - os: linux
-    dist: precise
-    sudo: required
-    env: PLUMED_CC=gcc   PLUMED_CXX=g++
-# test using external blas with internal lapack
-  - os: linux
-    dist: trusty
-    sudo: required
-    env: PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3 LAPACK=yes CONFIG_FLAGS="--disable-external-lapack"
-# osx serial
-  - os: osx
-    osx_image: xcode7.3
-    env: PLUMED_CC=clang PLUMED_CXX=clang++ PLUMED_CXXFLAGS=-O3
-# osx parallel
-  - os: osx
-    osx_image: xcode7.3
-    env: PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3
-# osx parallel Sierra
-  - os: osx
-    osx_image: xcode8.2
-    env: PLUMED_CC=mpicc PLUMED_CXX=mpic++  PLUMED_CXXFLAGS=-O3
 # osx serial macports
   - os: osx
     osx_image: xcode7.3
@@ -59,6 +8,10 @@ matrix:
 # osx serial macports debug variant
   - os: osx
     osx_image: xcode7.3
+    env: PLUMED_MACPORTS="plumed +allmodules"
+# osx serial macports debug variant
+  - os: osx
+    osx_image: xcode8.2
     env: PLUMED_MACPORTS="plumed +allmodules"
 # I don't put any mpi variant with macports since it takes too long to compile
 ## This command can be used to allow failures:
@@ -114,8 +67,10 @@ install:
 #  - if test -n "$PLUMED_MACPORTS" ; then wget https://distfiles.macports.org/MacPorts/MacPorts-2.3.4.tar.bz2 && tar xvfj MacPorts-2.3.4.tar.bz2 ; fi
 #  - if test -n "$PLUMED_MACPORTS" ; then cd MacPorts-2.3.4 && ./configure && sudo make install && cd - && sudo rm -fr MacPorts-2.3.4 ; fi
 # install macports from binary (faster):
-  - if test -n "$PLUMED_MACPORTS" ; then wget https://distfiles.macports.org/MacPorts/MacPorts-2.4.1-10.11-ElCapitan.pkg ; fi
-  - if test -n "$PLUMED_MACPORTS" ; then sudo installer -pkg MacPorts-2.4.1-10.11-ElCapitan.pkg -target / ; fi
+  - MACPORTS_PKG=MacPorts-2.4.1-10.11-ElCapitan.pkg
+  - if test -n "$PLUMED_MACPORTS" ; then if test "$(sw_vers -productVersion | sed 's/\.[^\.]*$//')" == 10.12 ; then MACPORTS_PKG=MacPorts-2.4.1-10.12-Sierra.pkg ; fi ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then wget https://distfiles.macports.org/MacPorts/$MACPORTS_PKG ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then sudo installer -pkg $MACPORTS_PKG -target / ; fi
   - if test -n "$PLUMED_MACPORTS" ; then export PATH=/opt/local/bin:$PATH ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port -v selfupdate ; fi
   - if test -n "$PLUMED_MACPORTS" ; then make macports ; fi
