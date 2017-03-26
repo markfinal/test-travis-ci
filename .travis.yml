@@ -69,7 +69,7 @@ install:
 # install macports from binary (faster):
   - if test -n "$PLUMED_MACPORTS" ; then OSX_VERSION="$(sw_vers -productVersion | sed 's/\.[^\.]*$//')" ; fi
   - MACPORTS_PKG=MacPorts-2.4.1-10.11-ElCapitan.pkg
-  - if test "$OSX_VERSION" == 10.12 ; then MACPORTS_PKG=MacPorts-2.4.1-10.12-Sierra.pkg ; fi ; fi
+  - if test "$OSX_VERSION" == 10.12 ; then MACPORTS_PKG=MacPorts-2.4.1-10.12-Sierra.pkg ; fi
   - echo "$MACPORTS_PKG"
   - if test -n "$PLUMED_MACPORTS" ; then wget https://distfiles.macports.org/MacPorts/$MACPORTS_PKG ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo installer -pkg $MACPORTS_PKG -target / ; fi
