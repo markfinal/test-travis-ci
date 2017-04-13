@@ -14,7 +14,7 @@ echo "** END NEW SOURCES"
 rm -f $$
 
 cp /opt/local/etc/macports/macports.conf $$
-awk '{if($1=="configureccache") print "configureccache yes" ; else print }' $$ > $$.new
+awk '{if(match($0,"configureccache")) print "configureccache yes" ; else print }' $$ > $$.new
 sudo mv -f $$.new /opt/local/etc/macports/macports.conf
 echo "** NEW CONFIG"
 cat /opt/local/etc/macports/macports.conf
