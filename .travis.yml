@@ -82,6 +82,8 @@ install:
   - ./.travis/check.log valgrind || VALGRIND=no
 # update packages
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && test -z "$PLUMED_MACPORTS" ; then brew update > /dev/null ; fi
+# install ccache to speedup compilation
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]] && test -z "$PLUMED_MACPORTS" ; then brew install ccache > /dev/null ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get update -qq ; fi
 # install some package - these are fast, we install them anyway
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install -y libmatheval-dev libfftw3-dev gsl-bin libgsl0-dev ; fi
@@ -123,6 +125,7 @@ install:
   - if test -n "$PLUMED_MACPORTS" ; then sudo installer -pkg $MACPORTS_PKG -target / ; fi
   - if test -n "$PLUMED_MACPORTS" ; then export PATH=/opt/local/bin:$PATH ; fi
   - if test -n "$PLUMED_MACPORTS" ; then sudo port -N -v selfupdate ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N install ccache ; fi
   - if test -n "$PLUMED_MACPORTS" ; then make macports ; fi
   - if test -n "$PLUMED_MACPORTS" ; then ./.travis/config.macports.sh ; fi
 
