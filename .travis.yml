@@ -1,3 +1,4 @@
+cache: ccache
 language: cpp
 matrix:
   include:
@@ -138,7 +139,7 @@ script:
 # BUILD:
 # this is done only if PLUMED_CXX is defined
 # we have to pass the full path since on travis machines sudo does not have compilers in the path
-  - if test "$PLUMED_CXX" ; then ./configure CXX=$(which $PLUMED_CXX) CC=$(which $PLUMED_CC) CXXFLAGS="$PLUMED_CXXFLAGS" LDFLAGS="$PLUMED_LDFLAGS" CPPFLAGS="$PLUMED_CPPFLAGS" $CONFIG_FLAGS ; fi
+  - if test "$PLUMED_CXX" ; then ./configure CXX="ccache $(which $PLUMED_CXX)" CC=$(which $PLUMED_CC) CXXFLAGS="$PLUMED_CXXFLAGS" LDFLAGS="$PLUMED_LDFLAGS" CPPFLAGS="$PLUMED_CPPFLAGS" $CONFIG_FLAGS ; fi
   - if test "$PLUMED_CXX" ; then make -j 4 ; fi
 # we install plumed so that it is in the path
   - if test "$PLUMED_CXX" ; then make install prefix="$HOME/opt" ; fi
