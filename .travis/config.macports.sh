@@ -16,9 +16,9 @@ rm -f $$
 cp /opt/local/etc/macports/macports.conf $$
 awk '{if($1=="configureccache") print "configureccache yes" ; else print }' $$ > $$.new
 sudo mv -f $$.new /opt/local/etc/macports/macports.conf
-cat "** NEW CONFIG"
+echo "** NEW CONFIG"
 cat /opt/local/etc/macports/macports.conf
-cat "** END NEW CONFIG"
+echo "** END NEW CONFIG"
 rm -f $$
 
 portindex
