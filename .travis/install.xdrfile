@@ -17,7 +17,7 @@ tar xzf xdrfile-1.1.4.tar.gz
 
 cd xdrfile-1.1.4
 
-./configure --enable-shared --prefix="$HOME/opt"
+./configure --enable-shared --prefix="$HOME/opt" CC="ccache $CC"
 
 make
 

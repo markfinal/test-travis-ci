@@ -19,7 +19,7 @@ tar xzf gawk-$version.tar.gz
 
 cd gawk-$version
 
-./configure --prefix="$HOME/opt"
+./configure --prefix="$HOME/opt" CC="ccache $CC"
 
 make -j 4
 
