@@ -134,10 +134,11 @@ install:
 # I do it only when LD_LIBRARY_PATH is non blank, since otherwise clang gives problems
   - if test -n "$LD_LIBRARY_PATH" ; then PLUMED_LDFLAGS="-Wl,-rpath,$LD_LIBRARY_PATH" ; fi
 # macports related stuff
+script:
 # configure macports
   - if test -n "$PLUMED_MACPORTS" ; then
       export COLUMNS=80 ;
-      wget https://raw.githubusercontent.com/GiovanniBussi/macports-ci/debug/macports-ci ;
+      wget https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci ;
       chmod +x ./macports-ci ;
       ./macports-ci install ;
       PATH="/opt/local/bin:$PATH" ;
@@ -145,7 +146,6 @@ install:
       ./macports-ci localports macports ;
       ./macports-ci ccache ;
     fi
-script:
 # make sure all modules are enabled
   - CONFIG_FLAGS="$CONFIG_FLAGS --enable-modules=all"
 # we enable fftw, which is off by default
