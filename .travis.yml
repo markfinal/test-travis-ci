@@ -137,7 +137,7 @@ install:
 # configure macports
   - if test -n "$PLUMED_MACPORTS" ; then
       export COLUMNS=80 ;
-      wget https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci ;
+      wget https://raw.githubusercontent.com/GiovanniBussi/macports-ci/debug/macports-ci ;
       chmod +x ./macports-ci ;
       ./macports-ci install ;
       PATH="/opt/local/bin:$PATH" ;
