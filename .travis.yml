@@ -179,6 +179,7 @@ script:
   - if test "$PLUMED_CXX" || test -n "$PLUMED_MACPORTS" ; then make -C regtest $OPT ; fi
 
 # test with gcc6
+  - if test "$PLUMED_DOCKER" = yes ; then docker run -v "$PWD/regtest":/home/plumed/regtest -it plumed /bin/bash -c "ls -lZ /home /home/plumed /home/plumed/regtest" ; fi
   - if test "$PLUMED_DOCKER" = yes ; then docker run -v "$PWD/regtest":/home/plumed/regtest -it plumed /bin/bash -c "make -C regtest" ; fi
 # currently, gcc6 fails for numerical reasons. Once this is fixed we can add the "make -C regtest checkfail" command below
 
