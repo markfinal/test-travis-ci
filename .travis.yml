@@ -116,7 +116,8 @@ install:
 # for plumedcheck I need astyle
   - if test "$CPPCHECK" == yes ; then make -j 4 -C astyle ; fi
 # for plumedcheck I also need git and hub
-  - if test "$CPPCHECK" == yes ; then .travis/install.git v2.13.3 ; fi
+# this is not necessary (travis version is recent enough):
+#  - if test "$CPPCHECK" == yes ; then .travis/install.git v2.13.3 ; fi
   - if test "$CPPCHECK" == yes ; then .travis/install.hub 2.2.8 ; fi
 # installation of these packages takes a lot of time
 # we do it only when needed
