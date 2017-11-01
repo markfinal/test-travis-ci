@@ -140,8 +140,9 @@ install:
 # macports related stuff
 # configure macports
   - if test -n "$PLUMED_MACPORTS" ; then
+      /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall)" ;
       export COLUMNS=80 ;
-      wget https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci ;
+      curl https://raw.githubusercontent.com/GiovanniBussi/macports-ci/master/macports-ci > macports-ci ;
       chmod +x ./macports-ci ;
       ./macports-ci install ;
       PATH="/opt/local/bin:$PATH" ;
