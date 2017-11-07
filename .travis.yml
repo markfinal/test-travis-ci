@@ -173,7 +173,7 @@ script:
 
 # build using macports
   - if test -n "$PLUMED_MACPORTS" ; then
-      sudo port -N build $PLUMED_MACPORTS ;
+      sudo port -N -k install $PLUMED_MACPORTS ;
       ./macports-ci ccache --save ;
     fi
 
@@ -193,7 +193,7 @@ script:
   - if test "$MAKEDOC" == yes ; then make -C developer-doc coverage ; fi
   - if test "$MAKEDOC" == yes ; then make doc >/dev/null ; fi
   - if test "$PLUMED_CXX" ; then make -C regtest checkfail ; fi
-  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N -d test "$PLUMED_MACPORTS" ; fi
+  - if test -n "$PLUMED_MACPORTS" ; then sudo port -N -d test $PLUMED_MACPORTS ; fi
 
 # CPPCHECK:
 # this is required so as to have all the include files inplace:
