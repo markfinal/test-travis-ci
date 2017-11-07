@@ -173,7 +173,7 @@ script:
 
 # build using macports
   - if test -n "$PLUMED_MACPORTS" ; then
-      sudo port -N -k install $PLUMED_MACPORTS ;
+      sudo port -N build $PLUMED_MACPORTS ;
       ./macports-ci ccache --save ;
     fi
 
