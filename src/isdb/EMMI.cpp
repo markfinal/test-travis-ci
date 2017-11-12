@@ -421,8 +421,9 @@ void EMMI::get_GMM_d(string GMM_file)
   IFile *ifile = new IFile();
   if(ifile->FileExist(GMM_file)) {
     ifile->open(GMM_file);
+    int idcomp;
     while(ifile->scanField("Id",idcomp)) {
-      int idcomp, beta;
+      int beta;
       double w, m0, m1, m2;
       ifile->scanField("Weight",w);
       ifile->scanField("Mean_0",m0);
