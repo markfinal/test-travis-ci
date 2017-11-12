@@ -130,13 +130,13 @@ void LWalls::calculate() {
   double totf2 = 0.0;
   for(unsigned i=0; i<getNumberOfArguments(); ++i) {
     double f = 0.0;
+    const double cv=difference(i,at[i],getArgument(i));
+    const double off=offset[i];
+    const double lscale = (cv-off)/epsilon;
     if( lscale < 0.) {
-      const double cv=difference(i,at[i],getArgument(i));
       const double k=kappa[i];
       const double exponent=exp[i];
       const double epsilon=eps[i];
-      const double off=offset[i];
-      const double lscale = (cv-off)/epsilon;
       double power = pow( lscale, exponent );
       f = -( k / epsilon ) * exponent * power / lscale;
       ene += k * power;
