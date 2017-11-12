@@ -135,10 +135,10 @@ void Moments::finish( const std::vector<double>& buffer ) {
     std::string str_min, str_max; getAction()->retrieveDomain( str_min, str_max );
     double pfactor, min, max; Tools::convert(str_min,min); Tools::convert(str_max,max);
     pfactor = 2*pi / ( max-min ); myvalue.setDomain( str_min, str_max );
-    double sinsum=0, cossum=0, val;
+    double sinsum=0, cossum=0;
     for(unsigned i=0; i<mystash->getNumberOfStoredValues(); ++i) {
       mystash->retrieveSequentialValue( i, false, myvalues );
-      val=pfactor*( myvalues[mycomponent] - min );
+      double val=pfactor*( myvalues[mycomponent] - min );
       sinsum+=sin(val); cossum+=cos(val);
     }
     mean = 0.5 + atan2( sinsum / static_cast<double>( nvals ), cossum / static_cast<double>( nvals ) ) / (2*pi);
