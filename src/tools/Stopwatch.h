@@ -26,6 +26,7 @@
 #include <unordered_map>
 #include <iosfwd>
 #include <chrono>
+#include <memory>
 
 namespace PLMD {
 
@@ -139,9 +140,40 @@ public:
   Stopwatch& pause(const std::string&name=emptyString());
 /// Dump all timers on an ostream
   friend std::ostream& operator<<(std::ostream&,const Stopwatch&);
+
+  class Handler {
+  protected:
+    Watch& w;
+  public:
+    Handler(Watch & w) :
+      w(w) {
+      w.start();
+    }
+    virtual ~Handler() {}
+  };
+  class HandlerStartStop :
+  public Handler {
+  public:
+    using Handler::Handler;
+    virtual ~HandlerStartStop() {
+      w.stop();
+    }
+  };
+  class HandlerStartPause :
+  public Handler {
+  public:
+    using Handler::Handler;
+    virtual ~HandlerStartPause() {
+      w.pause();
+    }
+  };
+  std::unique_ptr<Handler> startStop(const std::string&name=emptyString()) {
+    return std::unique_ptr<Handler>( new HandlerStartStop(watches[name]) );
+  }
+  std::unique_ptr<Handler> startPause(const std::string&name=emptyString()) {
+    return std::unique_ptr<Handler>( new HandlerStartPause(watches[name]) );
+  }
 };
-
-
 
 }
 
