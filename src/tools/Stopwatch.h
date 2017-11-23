@@ -96,7 +96,14 @@ int main(){
 
 */
 
+class Log;
+
 class Stopwatch {
+  static const std::string & emptyString(){
+    static std::string s;
+    return s;
+  }
+
 /// Class to store a single stopwatch.
 /// Class Stopwatch contains a collection of them
   class Watch {
@@ -112,36 +119,29 @@ class Stopwatch {
     void stop();
     void pause();
   };
+  Log*mylog=nullptr;
   std::unordered_map<std::string,Watch> watches;
   std::ostream& log(std::ostream&)const;
 public:
+// Constructor.
+  Stopwatch(){}
+// Constructor.
+// When destructing, stopwatch is logged.
+// Make sure that log survives stopwatch.
+  Stopwatch(Log&log): mylog(&log) {}
+// Destructor.
+  ~Stopwatch();
 /// Start timer named "name"
-  void start(const std::string&name);
-  void start();
+  Stopwatch& start(const std::string&name=emptyString());
 /// Stop timer named "name"
-  void stop(const std::string&name);
-  void stop();
+  Stopwatch& stop(const std::string&name=emptyString());
 /// Pause timer named "name"
-  void pause(const std::string&name);
-  void pause();
+  Stopwatch& pause(const std::string&name=emptyString());
 /// Dump all timers on an ostream
   friend std::ostream& operator<<(std::ostream&,const Stopwatch&);
 };
 
-inline
-void Stopwatch::start() {
-  start("");
-}
 
-inline
-void Stopwatch::stop() {
-  stop("");
-}
-
-inline
-void Stopwatch::pause() {
-  pause("");
-}
 
 }
 

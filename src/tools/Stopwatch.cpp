@@ -22,6 +22,7 @@
 
 #include "Stopwatch.h"
 #include "Exception.h"
+#include "Log.h"
 
 #include <cstdio>
 #include <iostream>
@@ -35,6 +36,10 @@ namespace PLMD {
 // this is needed for friend operators
 std::ostream& operator<<(std::ostream&os,const Stopwatch&sw) {
   return sw.log(os);
+}
+
+Stopwatch::~Stopwatch() {
+  if(mylog && mylog->isOpen()) *mylog << *this;
 }
 
 void Stopwatch::Watch::start() {
@@ -59,16 +64,19 @@ void Stopwatch::Watch::pause() {
   lap+=t.count();
 }
 
-void Stopwatch::start(const std::string & name) {
+Stopwatch& Stopwatch::start(const std::string & name) {
   watches[name].start();
+  return *this;
 }
 
-void Stopwatch::stop(const std::string & name) {
+Stopwatch& Stopwatch::stop(const std::string & name) {
   watches[name].stop();
+  return *this;
 }
 
-void Stopwatch::pause(const std::string & name) {
+Stopwatch& Stopwatch::pause(const std::string & name) {
   watches[name].pause();
+  return *this;
 }
 
 
