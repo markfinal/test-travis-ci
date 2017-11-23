@@ -84,11 +84,10 @@ PlumedMain::PlumedMain():
 {
   log.link(comm);
   log.setLinePrefix("PLUMED: ");
-  stopwatch.start().pause();
 }
 
+// Destructor is required to delete forward declarations
 PlumedMain::~PlumedMain() {
-  stopwatch.start().stop();
 }
 
 /////////////////////////////////////////////////////////////
