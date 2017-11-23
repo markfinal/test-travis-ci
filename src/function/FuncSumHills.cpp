@@ -498,7 +498,8 @@ FuncSumHills::FuncSumHills(const ActionOptions&ao):
     if(integratehills)	hillsHandler.reset(new FilesHandler(hillsFiles,parallelread,*this, log));
     if(integratehisto)	histoHandler.reset(new FilesHandler(histoFiles,parallelread,*this, log));
 
-    Stopwatch sw;
+// Stopwatch is logged when it goes out of scope
+    Stopwatch sw(log);
 
     sw.start("0 Summing hills");
 
@@ -612,8 +613,6 @@ FuncSumHills::FuncSumHills(const ActionOptions&ao):
     }
 
     sw.stop("0 Summing hills");
-
-    log<<sw;
 
     return;
   }

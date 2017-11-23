@@ -64,6 +64,8 @@ const std::unordered_map<std::string, int> & plumedMainWordMap() {
 
 PlumedMain::PlumedMain():
   initialized(false),
+// automatically write on log in destructor
+  stopwatch_fwd(log),
   step(0),
   active(false),
   mydatafetcher(DataFetchingObject::create(sizeof(double),*this)),
@@ -82,14 +84,11 @@ PlumedMain::PlumedMain():
 {
   log.link(comm);
   log.setLinePrefix("PLUMED: ");
-  stopwatch.start();
-  stopwatch.pause();
+  stopwatch.start().pause();
 }
 
 PlumedMain::~PlumedMain() {
-  stopwatch.start();
-  stopwatch.stop();
-  if(initialized) log<<stopwatch;
+  stopwatch.start().stop();
 }
 
 /////////////////////////////////////////////////////////////
