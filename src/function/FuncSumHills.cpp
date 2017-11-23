@@ -501,7 +501,8 @@ FuncSumHills::FuncSumHills(const ActionOptions&ao):
 // Stopwatch is logged when it goes out of scope
     Stopwatch sw(log);
 
-    sw.start("0 Summing hills");
+// Stopwatch is stopped when swh goes out of scope
+    auto swh=sw.startStop("0 Summing hills");
 
     // read a number of hills and put in the bias representation
     int nfiles=0;
@@ -611,8 +612,6 @@ FuncSumHills::FuncSumHills(const ActionOptions&ao):
 
       nfiles++;
     }
-
-    sw.stop("0 Summing hills");
 
     return;
   }
