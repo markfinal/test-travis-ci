@@ -95,6 +95,34 @@ int main(){
 
 \endverbatim
 
+Notice that as of PLUMED 2.5 it is possible to use a slightly modified
+interface that allow for exception safety. In pratice,
+one should replace a pair of calls to Stopwatch::start() and Stopwatch::stop()
+with a single call to Stopwatch::startStop(). This call will return an object
+that, when goes out of scope, will stop the timer. For instance the following 
+code
+\verbatim
+  {
+    sw.start("A");
+  // any code
+    sw.stop("A");
+  }
+\endverbatim
+should be replaced with
+\verbatim
+  {
+    auto sww=sw.startStop("A");
+  // any code
+
+  // stopwatch is stopped when sww goes out of scope
+  }
+\endverbatim
+Similarly, Stopwatch::startPause() can be used to replace a pair of
+Stopwatch::start() and Stopwatch::pause().
+
+Also notice that the returned object is a std::unique_ptr<Stopwatch::Handler>.
+Thus, by using the reset() method you can stop (or pause) the stopwatch as well.
+
 */
 
 class Log;
@@ -141,6 +169,9 @@ public:
 /// Dump all timers on an ostream
   friend std::ostream& operator<<(std::ostream&,const Stopwatch&);
 
+/// Auxiliary class.
+/// This class keep track of a watch so that it can
+/// be stopped or paused later.
   class Handler {
   protected:
     Watch& w;
@@ -167,9 +198,17 @@ public:
       w.pause();
     }
   };
+/// Start with exception safety, then stop.
+/// Start the Stopwatch and return an object that, when goes out of scope,
+/// stop the watch. This allows Stopwatch to be started and stopped in
+/// an exception safe manner.
   std::unique_ptr<Handler> startStop(const std::string&name=emptyString()) {
     return std::unique_ptr<Handler>( new HandlerStartStop(watches[name]) );
   }
+/// Start with exception safety, then pause.
+/// Start the Stopwatch and return an object that, when goes out of scope,
+/// pause the watch. This allows Stopwatch to be started and paused in
+/// an exception safe manner.
   std::unique_ptr<Handler> startPause(const std::string&name=emptyString()) {
     return std::unique_ptr<Handler>( new HandlerStartPause(watches[name]) );
   }
